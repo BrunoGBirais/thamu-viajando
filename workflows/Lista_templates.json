@@ -1,0 +1,105 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -176
+      ],
+      "id": "d537e94c-e3e3-40ff-b7d6-c66166b04904",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.canva.com/rest/v1/folders/FAHU09Wzi_E/items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "dfc91651-4ea7-440e-bf34-d8f8b92f4b95",
+      "name": "HTTP Request",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RXdsmPvdwZ5VAFqU",
+          "name": "canva teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "23fc18b7-418e-44b1-af8c-f26fdb3dcb65",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        48
+      ],
+      "id": "bc4f10d9-c973-4843-bbb6-e1d8a2c265d8",
+      "name": "Webhook",
+      "webhookId": "23fc18b7-418e-44b1-af8c-f26fdb3dcb65"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        496,
+        16
+      ],
+      "id": "9ea8129b-a582-4315-a967-d6f535a1d5f1",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "8b3499663299c3978f61cb7ac1febfb6a68336948075240032136661cdd6e9c7"
+  }
+}
