@@ -43,11 +43,15 @@ export default async function ClientePage({
 
   const cliente = row as Cliente;
 
-  const { data: cenarioRows } = await supabase
+  const { data: cenarioRows, error: cenarioError } = await supabase
     .from("cenarios")
     .select("*, voos(*), transporte(*), passeios(*)")
     .eq("cliente_id", id)
     .order("data_inicio", { ascending: true });
+
+  if (cenarioError) {
+    console.error("Falha ao carregar cenarios:", cenarioError);
+  }
 
   return (
     <>

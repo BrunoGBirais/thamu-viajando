@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS cenarios (
     cliente_id          INTEGER NOT NULL,
     titulo_proposta     VARCHAR(120), -- Mantive para ajudar no agrupamento!
     destino             VARCHAR(120) NOT NULL,
-    data_inicio         DATE NOT NULL,
-    data_fim            DATE NOT NULL,
+    data_inicio         DATE,
+    data_fim            DATE,
 
     -- ====================================================
     -- Dados da Hospedagem Única do Cenário

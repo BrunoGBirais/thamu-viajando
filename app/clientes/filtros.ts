@@ -12,8 +12,15 @@ export const ORCAMENTO_FAIXAS: OrcamentoFaixa[] = [
   { value: "acima-50000", label: "Acima de R$ 50.000", min: 50000, max: null },
 ];
 
+export const PAGE_SIZE = 20;
+
 export function readParam(value: string | string[] | undefined) {
   return (Array.isArray(value) ? value[0] : value)?.trim() ?? "";
+}
+
+export function readPage(value: string | string[] | undefined) {
+  const parsed = Number.parseInt(readParam(value), 10);
+  return Number.isFinite(parsed) && parsed > 1 ? parsed : 1;
 }
 
 // No PostgREST vírgula e parênteses são sintaxe; aspas isolam o valor do filtro.

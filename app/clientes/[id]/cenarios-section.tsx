@@ -20,6 +20,8 @@ import {
 import {
   ItensCenario,
   type FieldDef,
+  type FieldOption,
+  type FormValues,
   type ItemRecord,
   type ItemSummary,
 } from "./itens-cenario";
@@ -30,6 +32,7 @@ export type Cenario = {
   destino: string;
   data_inicio: string;
   data_fim: string;
+  hotel_nome?: string | null;
   voos?: ItemRecord[] | null;
   transporte?: ItemRecord[] | null;
   passeios?: ItemRecord[] | null;
@@ -40,71 +43,208 @@ const fieldClass =
 
 const labelClass = "mb-1 block text-xs font-medium text-zinc-600";
 
+const MOEDAS: FieldOption[] = [
+  { value: "BRL", label: "BRL · Real" },
+  { value: "USD", label: "USD · Dólar" },
+  { value: "EUR", label: "EUR · Euro" },
+  { value: "GBP", label: "GBP · Libra" },
+  { value: "ARS", label: "ARS · Peso arg." },
+];
+
+const STATUS: FieldOption[] = [
+  { value: "Pesquisando", label: "Pesquisando" },
+  { value: "Disponível", label: "Disponível" },
+  { value: "Reservado", label: "Reservado" },
+  { value: "Confirmado", label: "Confirmado" },
+  { value: "Cancelado", label: "Cancelado" },
+];
+
+const ESCALAS: FieldOption[] = [
+  { value: "0", label: "Direto" },
+  { value: "1", label: "1 escala" },
+  { value: "2", label: "2 escalas" },
+  { value: "3", label: "3+ escalas" },
+];
+
+const temEscala = (values: FormValues) =>
+  values.escalas !== "" && values.escalas !== "0";
+
 const VOO_FIELDS: FieldDef[] = [
-  { name: "companhia", label: "Companhia", maxLength: 120 },
-  { name: "origem", label: "Origem", required: true, maxLength: 100 },
-  { name: "destino", label: "Destino", required: true, maxLength: 100 },
+  {
+    name: "origem",
+    label: "Origem",
+    section: "Rota",
+    required: true,
+    maxLength: 100,
+    placeholder: "GRU · São Paulo",
+    span: "sm:col-span-2",
+  },
+  {
+    name: "destino",
+    label: "Destino",
+    section: "Rota",
+    required: true,
+    maxLength: 100,
+    placeholder: "MCO · Orlando",
+    span: "sm:col-span-2",
+  },
+  {
+    name: "companhia",
+    label: "Companhia",
+    section: "Rota",
+    maxLength: 120,
+    placeholder: "LATAM",
+    span: "sm:col-span-2",
+  },
   {
     name: "partida",
     label: "Partida",
+    section: "Rota",
     type: "datetime-local",
     required: true,
   },
-  { name: "chegada", label: "Chegada", type: "datetime-local" },
-  { name: "escalas", label: "Escalas", type: "number", min: "0" },
+  {
+    name: "chegada",
+    label: "Chegada",
+    section: "Rota",
+    type: "datetime-local",
+  },
+  {
+    name: "escalas",
+    label: "Paradas",
+    section: "Escalas",
+    type: "chips",
+    options: ESCALAS,
+    newValue: "0",
+    span: "sm:col-span-4",
+  },
   {
     name: "aeroporto_escala",
     label: "Aeroporto de escala",
+    section: "Escalas",
     maxLength: 160,
+    placeholder: "PTY · Cidade do Panamá",
     span: "sm:col-span-2",
+    showWhen: temEscala,
   },
-  { name: "tempo_escala", label: "Tempo de escala", maxLength: 40 },
-  { name: "moeda", label: "Moeda", maxLength: 3, newValue: "BRL" },
+  {
+    name: "tempo_escala",
+    label: "Tempo de escala",
+    section: "Escalas",
+    maxLength: 40,
+    placeholder: "2h 15min",
+    span: "sm:col-span-2",
+    showWhen: temEscala,
+  },
+  {
+    name: "moeda",
+    label: "Moeda",
+    section: "Valores",
+    type: "select",
+    options: MOEDAS,
+    newValue: "BRL",
+  },
   {
     name: "valor_unitario",
-    label: "Valor unitário",
+    label: "Valor por pessoa",
+    section: "Valores",
     type: "number",
     step: "0.01",
     min: "0",
+    placeholder: "0,00",
+    span: "sm:col-span-2",
   },
-  { name: "pax", label: "Pax", type: "number", min: "1", newValue: "1" },
-  { name: "status", label: "Status", maxLength: 40 },
+  {
+    name: "pax",
+    label: "Pax",
+    section: "Valores",
+    type: "number",
+    min: "1",
+    newValue: "1",
+  },
+  {
+    name: "status",
+    label: "Status",
+    section: "Situação",
+    type: "chips",
+    options: STATUS,
+    newValue: "Pesquisando",
+    span: "sm:col-span-4",
+  },
   {
     name: "link",
-    label: "Link",
+    label: "Link da cotação",
+    section: "Situação",
     type: "url",
     maxLength: 500,
+    placeholder: "https://",
     span: "sm:col-span-4",
   },
 ];
 
 const TRANSPORTE_FIELDS: FieldDef[] = [
-  { name: "origem", label: "Origem", required: true, maxLength: 120 },
-  { name: "destino", label: "Destino", required: true, maxLength: 120 },
-  { name: "fornecedor", label: "Fornecedor", required: true, maxLength: 160 },
-  { name: "status", label: "Status", required: true, maxLength: 40 },
+  {
+    name: "origem",
+    label: "Origem",
+    section: "Trajeto",
+    required: true,
+    maxLength: 120,
+    span: "sm:col-span-2",
+  },
+  {
+    name: "destino",
+    label: "Destino",
+    section: "Trajeto",
+    required: true,
+    maxLength: 120,
+    span: "sm:col-span-2",
+  },
+  {
+    name: "fornecedor",
+    label: "Fornecedor",
+    section: "Trajeto",
+    required: true,
+    maxLength: 160,
+    span: "sm:col-span-4",
+  },
   {
     name: "moeda",
     label: "Moeda",
+    section: "Valores",
+    type: "select",
+    options: MOEDAS,
     required: true,
-    maxLength: 3,
     newValue: "BRL",
   },
   {
     name: "preco_unitario",
-    label: "Preço unitário",
+    label: "Preço por pessoa",
+    section: "Valores",
     type: "number",
     step: "0.01",
     min: "0",
     required: true,
+    placeholder: "0,00",
+    span: "sm:col-span-2",
   },
   {
     name: "quantidade_pessoas",
     label: "Pessoas",
+    section: "Valores",
     type: "number",
     min: "1",
     required: true,
     newValue: "1",
+  },
+  {
+    name: "status",
+    label: "Status",
+    section: "Situação",
+    type: "chips",
+    options: STATUS,
+    required: true,
+    newValue: "Pesquisando",
+    span: "sm:col-span-4",
   },
 ];
 
@@ -112,41 +252,71 @@ const PASSEIO_FIELDS: FieldDef[] = [
   {
     name: "descricao",
     label: "Descrição",
+    section: "Passeio",
     required: true,
     maxLength: 200,
+    placeholder: "Ex.: Magic Kingdom · 1 dia",
+    span: "sm:col-span-4",
+  },
+  {
+    name: "cidade",
+    label: "Cidade",
+    section: "Passeio",
+    required: true,
+    maxLength: 100,
     span: "sm:col-span-2",
   },
-  { name: "cidade", label: "Cidade", required: true, maxLength: 100 },
-  { name: "fornecedor", label: "Fornecedor", required: true, maxLength: 160 },
+  {
+    name: "fornecedor",
+    label: "Fornecedor",
+    section: "Passeio",
+    required: true,
+    maxLength: 160,
+    span: "sm:col-span-2",
+  },
   {
     name: "moeda",
     label: "Moeda",
+    section: "Valores",
+    type: "select",
+    options: MOEDAS,
     required: true,
-    maxLength: 3,
     newValue: "BRL",
   },
   {
     name: "valor_unitario",
-    label: "Valor unitário",
+    label: "Valor por pessoa",
+    section: "Valores",
     type: "number",
     step: "0.01",
     min: "0",
     required: true,
+    placeholder: "0,00",
+    span: "sm:col-span-2",
   },
   {
     name: "qtd_pessoas",
     label: "Pessoas",
+    section: "Valores",
     type: "number",
     min: "1",
     required: true,
     newValue: "1",
   },
-  { name: "transfer", label: "Transfer incluso", type: "checkbox" },
+  {
+    name: "transfer",
+    label: "Transfer incluso",
+    section: "Extras",
+    type: "checkbox",
+    span: "sm:col-span-2",
+  },
   {
     name: "link",
     label: "Link",
+    section: "Extras",
     type: "url",
     maxLength: 500,
+    placeholder: "https://",
     span: "sm:col-span-4",
   },
 ];
@@ -231,6 +401,99 @@ function descreverPasseio(item: ItemRecord): ItemSummary {
   };
 }
 
+function duracao(partida: string, chegada: string) {
+  if (!partida || !chegada) return null;
+
+  // Os dois campos vêm do mesmo input local, então a diferença não sofre fuso.
+  const ms = new Date(chegada).getTime() - new Date(partida).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+
+  const horas = Math.floor(ms / 3_600_000);
+  const minutos = Math.round((ms % 3_600_000) / 60_000);
+
+  return minutos > 0 ? `${horas}h ${minutos}min` : `${horas}h`;
+}
+
+function totalLinha(moeda: string, unitario: string, quantidade: string) {
+  const valor = Number(unitario);
+  const pessoas = Number(quantidade);
+
+  if (!Number.isFinite(valor) || !Number.isFinite(pessoas)) return null;
+  if (valor <= 0 || pessoas <= 0) return null;
+
+  return money(moeda, valor * pessoas);
+}
+
+function Resumo({
+  itens,
+}: {
+  itens: { label: string; value: string | null }[];
+}) {
+  const validos = itens.filter((item) => item.value);
+  if (validos.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl bg-brand-navy/5 px-4 py-3">
+      {validos.map((item) => (
+        <div key={item.label}>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            {item.label}
+          </p>
+          <p className="text-sm font-semibold text-brand-navy">{item.value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function resumoVoo(values: FormValues) {
+  return (
+    <Resumo
+      itens={[
+        { label: "Duração", value: duracao(values.partida, values.chegada) },
+        {
+          label: "Total",
+          value: totalLinha(values.moeda, values.valor_unitario, values.pax),
+        },
+      ]}
+    />
+  );
+}
+
+function resumoTransporte(values: FormValues) {
+  return (
+    <Resumo
+      itens={[
+        {
+          label: "Total",
+          value: totalLinha(
+            values.moeda,
+            values.preco_unitario,
+            values.quantidade_pessoas
+          ),
+        },
+      ]}
+    />
+  );
+}
+
+function resumoPasseio(values: FormValues) {
+  return (
+    <Resumo
+      itens={[
+        {
+          label: "Total",
+          value: totalLinha(
+            values.moeda,
+            values.valor_unitario,
+            values.qtd_pessoas
+          ),
+        },
+      ]}
+    />
+  );
+}
+
 function Feedback({ state }: { state: CenarioFormState }) {
   if (!state?.error) return null;
 
@@ -287,6 +550,12 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
+function tituloCenario(cenario: Cenario) {
+  return cenario.hotel_nome
+    ? `${cenario.destino} · ${cenario.hotel_nome}`
+    : cenario.destino;
+}
+
 function CenarioCard({ cenario }: { cenario: Cenario }) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
@@ -305,7 +574,7 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="truncate text-base font-semibold text-brand-navy">
-                {cenario.destino}
+                {tituloCenario(cenario)}
               </h3>
               <p className="text-xs text-zinc-500">
                 {periodo(cenario.data_inicio, cenario.data_fim)}
@@ -395,7 +664,7 @@ function ItensModal({
     <Modal
       open={tab !== null}
       onClose={onClose}
-      title={`Itens · ${cenario.destino}`}
+      title={`Itens · ${tituloCenario(cenario)}`}
       description={periodo(cenario.data_inicio, cenario.data_fim)}
       size="lg"
     >
@@ -426,6 +695,7 @@ function ItensModal({
           saveAction={saveVoo}
           deleteAction={deleteVoo}
           describe={descreverVoo}
+          summary={resumoVoo}
         />
       )}
 
@@ -439,6 +709,7 @@ function ItensModal({
           saveAction={saveTransporte}
           deleteAction={deleteTransporte}
           describe={descreverTransporte}
+          summary={resumoTransporte}
         />
       )}
 
@@ -452,6 +723,7 @@ function ItensModal({
           saveAction={savePasseio}
           deleteAction={deletePasseio}
           describe={descreverPasseio}
+          summary={resumoPasseio}
         />
       )}
     </Modal>
@@ -557,7 +829,7 @@ function ExcluirCenarioModal({
       size="sm"
     >
       <p className="text-sm text-zinc-700">
-        Excluir <strong>{cenario.destino}</strong>? Esta ação não pode ser
+        Excluir <strong>{tituloCenario(cenario)}</strong>? Esta ação não pode ser
         desfeita.
       </p>
 

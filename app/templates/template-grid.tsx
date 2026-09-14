@@ -1,14 +1,7 @@
 import Image from "next/image";
+import type { Template } from "@/lib/n8n/templates";
 
-export type Template = {
-  id: string;
-  title: string;
-  thumbnailUrl?: string;
-  thumbnailWidth?: number;
-  thumbnailHeight?: number;
-  viewUrl?: string;
-  pageCount?: number;
-};
+export type { Template };
 
 export function TemplateGrid({ templates }: { templates: Template[] }) {
   if (templates.length === 0) {

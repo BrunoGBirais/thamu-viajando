@@ -209,6 +209,14 @@ export function AppHeader({
             Clientes
           </Link>
           <Link
+            href="/criar-proposta"
+            onClick={() => setOpen(false)}
+            tabIndex={open ? 0 : -1}
+            className="rounded-lg px-3 py-2.5 font-medium text-brand-navy transition-colors hover:bg-brand-blue/10"
+          >
+            Criar proposta
+          </Link>
+          <Link
             href="/templates"
             onClick={() => setOpen(false)}
             tabIndex={open ? 0 : -1}

@@ -38,6 +38,8 @@ export function ClientesFilters({
         params.delete(key);
       }
 
+      params.delete("pagina");
+
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname);
     },
