@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { loadTemplates } from "@/lib/n8n/templates";
 import { AppHeader } from "../components/app-header";
-import { PropostaWizard, type ClienteOpcao } from "./proposta-wizard";
+import {
+  PropostaWizard,
+  type ClienteOpcao,
+  type TemplateOpcao,
+} from "./proposta-wizard";
 
 export default async function CriarPropostaPage() {
   const supabase = await createClient();
@@ -19,20 +22,25 @@ export default async function CriarPropostaPage() {
 
   const { data: isAdmin } = await supabase.rpc("thamu_viajando_is_admin");
 
-  const [{ data: clienteRows, error: clientesError }, templatesResult] =
+  const [{ data: clienteRows, error: clientesError }, { data: templateRows }] =
     await Promise.all([
       supabase
         .from("clientes")
         .select("id, nome, cenarios(id, destino, data_inicio, data_fim, hotel_nome)")
         .order("nome", { ascending: true }),
-      loadTemplates(),
+      supabase
+        .from("proposta_templates")
+        .select("id, nome, paginas")
+        .eq("ativo", true)
+        .order("nome", { ascending: true }),
     ]);
 
   if (clientesError) {
     console.error("Falha ao carregar clientes:", clientesError);
   }
 
-  const clientes = (clienteRows ?? []) as ClienteOpcao[];
+  const clientes = (clienteRows ?? []) as unknown as ClienteOpcao[];
+  const templates = (templateRows ?? []) as unknown as TemplateOpcao[];
 
   return (
     <>
@@ -57,11 +65,7 @@ export default async function CriarPropostaPage() {
               Não foi possível carregar os clientes: {clientesError.message}
             </div>
           ) : (
-            <PropostaWizard
-              clientes={clientes}
-              templates={templatesResult.templates ?? []}
-              templatesError={templatesResult.error}
-            />
+            <PropostaWizard clientes={clientes} templates={templates} />
           )}
         </div>
       </main>

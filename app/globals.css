@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Fonte licenciada: arquivo em public/fonts/, ou a instalada no sistema. */
+@font-face {
+  font-family: "Childos Arabic";
+  src: url("/fonts/childos-arabic.otf") format("opentype"),
+    local("Childos Arabic");
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -51,6 +59,13 @@ body {
 
 .toast-in {
   animation: toast-in 200ms ease-out;
+}
+
+/* A proposta é impressa sem margens; o tamanho da página vem do template. */
+@media print {
+  body {
+    background: #fff;
+  }
 }
 
 @keyframes overlay-in {

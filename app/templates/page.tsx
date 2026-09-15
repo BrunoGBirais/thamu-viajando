@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { loadTemplates } from "@/lib/n8n/templates";
+import type { Campo } from "@/lib/proposta/template";
 import { AppHeader } from "../components/app-header";
-import { TemplateGrid } from "./template-grid";
+import { TemplatesManager, type TemplateRow } from "./templates-manager";
+
+type TemplateRecord = Omit<TemplateRow, "totalCampos"> & { campos: Campo[] };
 
 export default async function TemplatesPage() {
   const supabase = await createClient();
@@ -18,7 +20,18 @@ export default async function TemplatesPage() {
     | undefined;
 
   const { data: isAdmin } = await supabase.rpc("thamu_viajando_is_admin");
-  const result = await loadTemplates();
+
+  const { data: rows, error } = await supabase
+    .from("proposta_templates")
+    .select("id, nome, descricao, paginas, largura_mm, altura_mm, ativo, campos")
+    .order("nome");
+
+  const templates = ((rows ?? []) as unknown as TemplateRecord[]).map(
+    ({ campos, ...template }) => ({
+      ...template,
+      totalCampos: Array.isArray(campos) ? campos.length : 0,
+    })
+  );
 
   return (
     <>
@@ -29,19 +42,12 @@ export default async function TemplatesPage() {
       />
       <main className="flex-1 bg-zinc-50 px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-6xl space-y-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-brand-navy">Templates</h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              Modelos disponíveis na pasta do Canva.
-            </p>
-          </div>
-
-          {result.error ? (
+          {error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-brand-red">
-              {result.error}
+              Não foi possível carregar os modelos.
             </div>
           ) : (
-            <TemplateGrid templates={result.templates ?? []} />
+            <TemplatesManager templates={templates} />
           )}
         </div>
       </main>

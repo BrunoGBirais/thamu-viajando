@@ -1,16 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type { Template } from "@/lib/n8n/templates";
-import { criarProposta, type PropostaFormState } from "./actions";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+export type TemplateOpcao = {
+  id: number;
+  nome: string;
+  paginas: string[];
+};
 
 export type CenarioOpcao = {
   id: number;
@@ -50,35 +48,25 @@ function rotuloCenario(cenario: CenarioOpcao) {
 export function PropostaWizard({
   clientes,
   templates,
-  templatesError,
 }: {
   clientes: ClienteOpcao[];
-  templates: Template[];
-  templatesError?: string;
+  templates: TemplateOpcao[];
 }) {
   const [clienteId, setClienteId] = useState("");
   const [cenarioId, setCenarioId] = useState("");
   const [templateId, setTemplateId] = useState("");
-  const [state, formAction, pending] = useActionState<
-    PropostaFormState,
-    FormData
-  >(criarProposta, undefined);
 
   const cliente = useMemo(
     () => clientes.find((item) => String(item.id) === clienteId),
     [clientes, clienteId]
   );
   const cenario = cliente?.cenarios.find((item) => String(item.id) === cenarioId);
-  const template = templates.find((item) => item.id === templateId);
+  const template = templates.find((item) => String(item.id) === templateId);
 
   const pronto = Boolean(cliente && cenario && template);
 
   return (
-    <form action={formAction} className="space-y-6">
-      <input type="hidden" name="cliente_id" value={clienteId} />
-      <input type="hidden" name="cenario_id" value={cenarioId} />
-      <input type="hidden" name="template_id" value={templateId} />
-
+    <div className="space-y-6">
       <Etapa numero={1} titulo="Cliente">
         <select
           value={clienteId}
@@ -121,12 +109,11 @@ export function PropostaWizard({
         )}
       </Etapa>
 
-      <Etapa numero={3} titulo="Template do Canva">
-        {templatesError ? (
-          <p className="text-sm text-brand-red">{templatesError}</p>
-        ) : templates.length === 0 ? (
+      <Etapa numero={3} titulo="Template">
+        {templates.length === 0 ? (
           <p className="text-sm text-zinc-500">
-            Nenhum template encontrado na pasta do Canva.
+            Nenhum template cadastrado. Exporte o design do Canva, suba as
+            páginas no Storage e cadastre em <code>proposta_templates</code>.
           </p>
         ) : (
           <TemplateCarousel
@@ -137,43 +124,26 @@ export function PropostaWizard({
         )}
       </Etapa>
 
-      {state?.error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-brand-red">
-          {state.error}
-        </div>
-      )}
-
-      {state?.success && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-          {state.success}
-          {state.propostaUrl && (
-            <a
-              href={state.propostaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-1 font-semibold underline"
-            >
-              Abrir no Canva
-            </a>
-          )}
-        </div>
-      )}
-
       <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-zinc-600">
           {pronto
-            ? `${cliente!.nome} · ${rotuloCenario(cenario!)} · ${template!.title}`
+            ? `${cliente!.nome} · ${rotuloCenario(cenario!)} · ${template!.nome}`
             : "Escolha cliente, proposta e template para continuar."}
         </p>
-        <button
-          type="submit"
-          disabled={!pronto || pending}
-          className="rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {pending ? "Enviando..." : "Criar proposta"}
-        </button>
+        {pronto ? (
+          <Link
+            href={`/proposta/${cenarioId}?template=${templateId}`}
+            className="rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:brightness-110"
+          >
+            Criar proposta
+          </Link>
+        ) : (
+          <span className="cursor-not-allowed rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white opacity-50">
+            Criar proposta
+          </span>
+        )}
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -182,7 +152,7 @@ function TemplateCarousel({
   selectedId,
   onSelect,
 }: {
-  templates: Template[];
+  templates: TemplateOpcao[];
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
@@ -218,19 +188,19 @@ function TemplateCarousel({
           <button
             key={item.id}
             type="button"
-            onClick={() => onSelect(item.id)}
-            aria-pressed={item.id === selectedId}
+            onClick={() => onSelect(String(item.id))}
+            aria-pressed={String(item.id) === selectedId}
             className={`w-[calc(50%-0.5rem)] flex-none snap-start overflow-hidden rounded-xl border bg-white text-left shadow-sm transition sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] ${
-              item.id === selectedId
+              String(item.id) === selectedId
                 ? "border-brand-blue ring-2 ring-brand-blue/30"
                 : "border-zinc-200 hover:border-brand-blue"
             }`}
           >
             <div className="relative aspect-[4/5] w-full bg-zinc-100">
-              {item.thumbnailUrl ? (
+              {item.paginas[0] ? (
                 <Image
-                  src={item.thumbnailUrl}
-                  alt={item.title}
+                  src={item.paginas[0]}
+                  alt={item.nome}
                   fill
                   sizes="(max-width: 640px) 50vw, 25vw"
                   className="object-cover"
@@ -242,7 +212,7 @@ function TemplateCarousel({
               )}
             </div>
             <p className="truncate p-3 text-sm font-medium text-brand-navy">
-              {item.title}
+              {item.nome}
             </p>
           </button>
         ))}

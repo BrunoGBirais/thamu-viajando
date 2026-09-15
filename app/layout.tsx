@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Open_Sans } from "next/font/google";
 import { ToastProvider } from "./components/toast";
 import "./globals.css";
 
@@ -13,6 +13,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "ThaMu Viajando",
   description: "Sua próxima viagem começa aqui.",
@@ -22,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${openSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ToastProvider>{children}</ToastProvider>
