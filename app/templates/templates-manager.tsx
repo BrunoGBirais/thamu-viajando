@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  useActionState,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Modal, ModalActions } from "@/app/components/modal";
+import { Badge } from "@/app/components/ui/badge";
+import { Button, buttonClass } from "@/app/components/ui/button";
+import { Card, EmptyState, PageHeader } from "@/app/components/ui/card";
+import { Field, FormFeedback, Input, Textarea } from "@/app/components/ui/form";
 import {
   atualizarTemplate,
   criarTemplate,
@@ -27,96 +27,109 @@ export type TemplateRow = {
   totalCampos: number;
 };
 
-const inputClass =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
-
-const labelClass = "block text-sm font-medium text-zinc-700";
-
 export function TemplatesManager({ templates }: { templates: TemplateRow[] }) {
   const [criando, setCriando] = useState(false);
   const [editando, setEditando] = useState<TemplateRow | null>(null);
   const [excluindo, setExcluindo] = useState<TemplateRow | null>(null);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-brand-navy">Templates</h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            Modelos de proposta e a posição de cada campo.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setCriando(true)}
-          className="rounded-lg bg-brand-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-navy"
-        >
-          Novo template
-        </button>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Biblioteca"
+        title="Templates"
+        description="Modelos de proposta e a posição de cada campo."
+        actions={
+          <Button onClick={() => setCriando(true)} variant="primary">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Novo template
+          </Button>
+        }
+      />
 
       {templates.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
-          Nenhum modelo cadastrado ainda.
-        </p>
+        <EmptyState
+          title="Nenhum modelo cadastrado"
+          description="Crie um template para começar a montar propostas."
+          action={
+            <Button onClick={() => setCriando(true)}>Novo template</Button>
+          }
+        />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {templates.map((template, indice) => (
             <li
               key={template.id}
-              className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm"
+              className="animate-rise"
+              style={{ animationDelay: `${indice * 50}ms` }}
             >
-              <Link
-                href={`/templates/${template.id}`}
-                className="relative block aspect-[3/4] bg-zinc-100"
-              >
-                <Image
-                  src={template.paginas[0]}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-contain"
-                />
-              </Link>
+              <Card hover className="group h-full overflow-hidden">
+                <Link
+                  href={`/templates/${template.id}`}
+                  className="relative block aspect-[3/4] overflow-hidden bg-surface-sunken"
+                >
+                  <Image
+                    src={template.paginas[0]}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-contain transition-transform duration-500 ease-out-expo group-hover:scale-105"
+                  />
+                </Link>
 
-              <div className="space-y-3 p-4">
-                <div>
-                  <p className="truncate font-semibold text-brand-navy">
-                    {template.nome}
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    {template.paginas.length}{" "}
-                    {template.paginas.length === 1 ? "página" : "páginas"} ·{" "}
-                    {template.totalCampos}{" "}
-                    {template.totalCampos === 1 ? "campo" : "campos"}
-                    {template.ativo ? "" : " · inativo"}
-                  </p>
-                </div>
+                <div className="space-y-3 p-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="truncate font-semibold text-brand-navy">
+                        {template.nome}
+                      </p>
+                      {template.ativo ? null : (
+                        <Badge tone="neutral">inativo</Badge>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-xs text-subtle">
+                      {template.paginas.length}{" "}
+                      {template.paginas.length === 1 ? "página" : "páginas"} ·{" "}
+                      {template.totalCampos}{" "}
+                      {template.totalCampos === 1 ? "campo" : "campos"}
+                    </p>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href={`/templates/${template.id}`}
-                    className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-brand-blue hover:text-brand-blue"
-                  >
-                    Editar campos
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setEditando(template)}
-                    className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-brand-blue hover:text-brand-blue"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setExcluindo(template)}
-                    className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-brand-red hover:text-brand-red"
-                  >
-                    Excluir
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/templates/${template.id}`}
+                      className={buttonClass("outline", "sm")}
+                    >
+                      Editar campos
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditando(template)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExcluindo(template)}
+                      className="text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
+                    >
+                      Excluir
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </Card>
             </li>
           ))}
         </ul>
@@ -135,95 +148,6 @@ export function TemplatesManager({ templates }: { templates: TemplateRow[] }) {
           onClose={() => setExcluindo(null)}
         />
       )}
-    </div>
-  );
-}
-
-function Dialog({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button
-        type="button"
-        aria-label="Fechar"
-        onClick={onClose}
-        className="absolute inset-0 cursor-default bg-black/50"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="relative w-full max-w-md overflow-hidden rounded-xl bg-white shadow-xl"
-      >
-        <div className="h-1 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-blue" />
-        <div className="p-6">
-          <h2 className="text-lg font-semibold text-brand-navy">{title}</h2>
-          <div className="mt-4">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FormFeedback({ state }: { state: TemplateFormState }) {
-  if (!state?.error) return null;
-
-  return (
-    <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-brand-red">
-      {state.error}
-    </p>
-  );
-}
-
-function DialogActions({
-  pending,
-  disabled = false,
-  confirmLabel,
-  danger = false,
-  onClose,
-}: {
-  pending: boolean;
-  disabled?: boolean;
-  confirmLabel: string;
-  danger?: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <div className="flex justify-end gap-3 pt-2">
-      <button
-        type="button"
-        onClick={onClose}
-        className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        disabled={pending || disabled}
-        className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 ${
-          danger
-            ? "bg-brand-red hover:bg-red-700"
-            : "bg-brand-navy hover:bg-brand-blue"
-        }`}
-      >
-        {pending ? "Salvando..." : confirmLabel}
-      </button>
     </div>
   );
 }
@@ -342,10 +266,24 @@ function SeletorPaginas({
   };
 
   return (
-    <div className="space-y-1">
-      <label htmlFor="paginas" className={labelClass}>
-        Páginas (imagens exportadas do Canva)
-      </label>
+    <Field
+      label="Páginas (imagens exportadas do Canva)"
+      htmlFor="paginas"
+      hint={
+        <span className={estado.erro ? "text-brand-red" : undefined}>
+          {estado.erro ??
+            (estado.enviando
+              ? "Enviando imagens..."
+              : estado.urls.length > 0
+              ? `${estado.urls.length} ${
+                  estado.urls.length === 1
+                    ? "página enviada"
+                    : "páginas enviadas"
+                } · ${estado.largura} × ${estado.altura} mm`
+              : "PNG, JPG ou WebP, até 8 MB por página.")}
+        </span>
+      }
+    >
       <input
         id="paginas"
         type="file"
@@ -353,28 +291,14 @@ function SeletorPaginas({
         required={obrigatorio && estado.urls.length === 0}
         accept="image/png,image/jpeg,image/webp"
         onChange={aoSelecionar}
-        className="w-full text-sm text-zinc-700 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+        className="w-full cursor-pointer rounded-xl border border-dashed border-line-strong bg-surface-muted p-3 text-sm text-muted transition hover:border-brand-blue file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-brand-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
       />
       {estado.urls.map((url) => (
         <input key={url} type="hidden" name="paginas_url" value={url} />
       ))}
       <input type="hidden" name="largura_mm" value={estado.largura ?? ""} />
       <input type="hidden" name="altura_mm" value={estado.altura ?? ""} />
-      <p
-        className={`text-xs ${
-          estado.erro ? "text-brand-red" : "text-zinc-500"
-        }`}
-      >
-        {estado.erro ??
-          (estado.enviando
-            ? "Enviando imagens..."
-            : estado.urls.length > 0
-            ? `${estado.urls.length} ${
-                estado.urls.length === 1 ? "página enviada" : "páginas enviadas"
-              } · ${estado.largura} × ${estado.altura} mm`
-            : "PNG, JPG ou WebP, até 8 MB por página.")}
-      </p>
-    </div>
+    </Field>
   );
 }
 
@@ -390,40 +314,33 @@ function DialogoCriar({ onClose }: { onClose: () => void }) {
   }, [state, onClose]);
 
   return (
-    <Dialog title="Novo template" onClose={onClose}>
+    <Modal open onClose={onClose} title="Novo template" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
 
-        <div className="space-y-1">
-          <label htmlFor="novo-nome" className={labelClass}>
-            Nome
-          </label>
-          <input id="novo-nome" name="nome" required className={inputClass} />
-        </div>
+        <Field label="Nome" htmlFor="novo-nome">
+          <Input id="novo-nome" name="nome" required />
+        </Field>
 
-        <div className="space-y-1">
-          <label htmlFor="nova-descricao" className={labelClass}>
-            Descrição
-          </label>
-          <textarea
+        <Field label="Descrição" htmlFor="nova-descricao">
+          <Textarea
             id="nova-descricao"
             name="descricao"
             rows={3}
             placeholder="Contexto para a IA: tom, público e o que cada seção representa."
-            className={inputClass}
           />
-        </div>
+        </Field>
 
         <SeletorPaginas obrigatorio estado={paginas} onEstado={setPaginas} />
 
-        <DialogActions
+        <ModalActions
+          onCancel={onClose}
+          confirmLabel="Criar template"
           pending={pending || paginas.enviando}
           disabled={paginas.urls.length === 0}
-          confirmLabel="Criar template"
-          onClose={onClose}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -445,44 +362,36 @@ function DialogoEditar({
   }, [state, onClose]);
 
   return (
-    <Dialog title="Editar template" onClose={onClose}>
+    <Modal open onClose={onClose} title="Editar template" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
         <input type="hidden" name="id" value={template.id} />
 
-        <div className="space-y-1">
-          <label htmlFor="editar-nome" className={labelClass}>
-            Nome
-          </label>
-          <input
+        <Field label="Nome" htmlFor="editar-nome">
+          <Input
             id="editar-nome"
             name="nome"
             required
             defaultValue={template.nome}
-            className={inputClass}
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label htmlFor="editar-descricao" className={labelClass}>
-            Descrição
-          </label>
-          <textarea
+        <Field label="Descrição" htmlFor="editar-descricao">
+          <Textarea
             id="editar-descricao"
             name="descricao"
             rows={3}
             defaultValue={template.descricao ?? ""}
             placeholder="Contexto para a IA: tom, público e o que cada seção representa."
-            className={inputClass}
           />
-        </div>
+        </Field>
 
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
           <input
             type="checkbox"
             name="ativo"
             defaultChecked={template.ativo}
-            className="h-4 w-4 rounded border-zinc-300 accent-brand-navy"
+            className="h-4 w-4 rounded-md border-line-strong accent-brand-navy"
           />
           Disponível na criação de propostas
         </label>
@@ -492,17 +401,17 @@ function DialogoEditar({
           estado={paginas}
           onEstado={setPaginas}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-subtle">
           Enviar novas imagens substitui todas as páginas atuais.
         </p>
 
-        <DialogActions
-          pending={pending || paginas.enviando}
+        <ModalActions
+          onCancel={onClose}
           confirmLabel="Salvar"
-          onClose={onClose}
+          pending={pending || paginas.enviando}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -523,23 +432,26 @@ function DialogoExcluir({
   }, [state, onClose]);
 
   return (
-    <Dialog title="Excluir template" onClose={onClose}>
+    <Modal open onClose={onClose} title="Excluir template" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
         <input type="hidden" name="id" value={template.id} />
 
-        <p className="text-sm text-zinc-700">
-          Excluir <strong>{template.nome}</strong> e o layout dos campos? As
-          propostas já impressas não são afetadas.
+        <p className="text-sm text-muted">
+          Excluir{" "}
+          <strong className="font-semibold text-brand-navy">
+            {template.nome}
+          </strong>{" "}
+          e o layout dos campos? As propostas já impressas não são afetadas.
         </p>
 
-        <DialogActions
-          pending={pending}
+        <ModalActions
+          onCancel={onClose}
           confirmLabel="Excluir"
-          danger
-          onClose={onClose}
+          confirmVariant="danger"
+          pending={pending}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }

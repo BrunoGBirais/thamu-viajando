@@ -57,9 +57,9 @@ type ItemAction = (
 ) => Promise<ItemFormState>;
 
 const fieldClass =
-  "w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15";
+  "w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-foreground shadow-2xs outline-none transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15";
 
-const labelClass = "mb-1.5 block text-[11px] font-medium text-zinc-500";
+const labelClass = "mb-1.5 block text-[11px] font-medium text-muted";
 
 function Feedback({ state }: { state: ItemFormState }) {
   if (!state?.error) return null;
@@ -134,7 +134,7 @@ function Field({
         className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition ${
           marcado
             ? "border-brand-blue bg-brand-blue/5 font-medium text-brand-navy"
-            : "border-zinc-200 text-zinc-600 hover:border-zinc-300"
+            : "border-line text-muted hover:border-line-strong hover:text-foreground"
         } ${field.span ?? ""}`}
       >
         <input
@@ -145,7 +145,7 @@ function Field({
           onChange={(event) =>
             onChange(field.name, event.target.checked ? "1" : "")
           }
-          className="size-4 rounded border-zinc-300 accent-brand-blue"
+          className="size-4 rounded-md border-line-strong accent-brand-blue"
         />
         {field.label}
       </label>
@@ -166,7 +166,7 @@ function Field({
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                 value === option.value
                   ? "bg-brand-navy text-white shadow-sm"
-                  : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700"
+                  : "bg-surface-sunken text-muted hover:bg-line hover:text-foreground"
               }`}
             >
               {option.label}
@@ -272,9 +272,9 @@ function ItemForm({
       {agrupar(fields, values).map((grupo, index) => (
         <div key={grupo.title ?? index} className="space-y-2.5">
           {grupo.title && (
-            <p className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            <p className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">
               {grupo.title}
-              <span className="h-px flex-1 bg-zinc-200" />
+              <span className="h-px flex-1 bg-line" />
             </p>
           )}
 
@@ -295,11 +295,11 @@ function ItemForm({
 
       <Feedback state={state} />
 
-      <div className="flex items-center justify-end gap-3 border-t border-zinc-200 pt-3">
+      <div className="flex items-center justify-end gap-3 border-t border-line pt-3">
         <button
           type="button"
           onClick={onCancel}
-          className="text-xs font-medium text-zinc-500 transition hover:text-zinc-800"
+          className="text-xs font-medium text-muted transition hover:text-foreground"
         >
           Cancelar
         </button>
@@ -354,8 +354,8 @@ function ItemRow({
     <li
       className={`overflow-hidden rounded-xl border transition ${
         expanded
-          ? "border-brand-blue/40 bg-white shadow-sm"
-          : "border-zinc-200 bg-white hover:border-zinc-300"
+          ? "border-brand-blue/40 bg-surface shadow-sm"
+          : "border-line bg-surface hover:border-line-strong hover:shadow-sm"
       }`}
     >
       <div className="flex items-center gap-3 px-3 py-2.5">
@@ -374,7 +374,7 @@ function ItemRow({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            className={`shrink-0 text-zinc-300 transition-transform duration-200 ${
+            className={`shrink-0 text-subtle transition-transform duration-200 ${
               expanded ? "rotate-90 text-brand-blue" : ""
             }`}
           >
@@ -382,11 +382,11 @@ function ItemRow({
           </svg>
 
           <span className="min-w-0">
-            <span className="block truncate text-sm font-medium text-zinc-800">
+            <span className="block truncate text-sm font-medium text-foreground">
               {title}
             </span>
             {meta && (
-              <span className="block truncate text-xs text-zinc-500">
+              <span className="block truncate text-xs text-muted">
                 {meta}
               </span>
             )}
@@ -394,7 +394,7 @@ function ItemRow({
         </button>
 
         {badge && (
-          <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-700">
+          <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-semibold text-foreground">
             {badge}
           </span>
         )}
@@ -413,7 +413,7 @@ function ItemRow({
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="text-xs font-medium text-zinc-500 hover:underline"
+              className="text-xs font-medium text-muted hover:underline"
             >
               Não
             </button>
@@ -445,7 +445,7 @@ function ItemRow({
           summary={summary}
           submitLabel="Salvar"
           pendingLabel="Salvando..."
-          className="border-t border-zinc-200 bg-zinc-50/70 px-4 py-4"
+          className="border-t border-line bg-surface-muted px-4 py-4"
           onCancel={onToggle}
           onDone={onDone}
         />
@@ -471,7 +471,7 @@ function IconButton({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`rounded-lg p-1.5 text-zinc-400 transition hover:bg-zinc-100 ${
+      className={`rounded-lg p-1.5 text-subtle transition hover:bg-surface-sunken ${
         danger ? "hover:text-brand-red" : "hover:text-brand-navy"
       }`}
     >
@@ -518,7 +518,7 @@ function AddItemForm({
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-zinc-300 py-2.5 text-xs font-semibold text-zinc-500 transition hover:border-brand-blue hover:bg-brand-blue/5 hover:text-brand-blue"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-line-strong py-2.5 text-xs font-semibold text-muted transition hover:border-brand-blue hover:bg-brand-blue/5 hover:text-brand-blue"
       >
         <svg
           width="14"
@@ -538,8 +538,8 @@ function AddItemForm({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-brand-blue/30 bg-white shadow-sm">
-      <p className="border-b border-zinc-200 bg-brand-blue/5 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-brand-blue">
+    <div className="overflow-hidden rounded-2xl border border-brand-blue/30 bg-surface shadow-sm">
+      <p className="border-b border-line bg-brand-blue/5 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-blue">
         {addLabel}
       </p>
 
@@ -590,7 +590,7 @@ export function ItensCenario({
   return (
     <div className="space-y-2">
       {items.length === 0 ? (
-        <p className="rounded-xl bg-zinc-50 px-3 py-6 text-center text-xs text-zinc-500">
+        <p className="rounded-xl bg-surface-muted px-3 py-6 text-center text-xs text-muted">
           {emptyMessage}
         </p>
       ) : (

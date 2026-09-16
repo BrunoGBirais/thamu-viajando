@@ -39,9 +39,9 @@ export type Cenario = {
 };
 
 const fieldClass =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
+  "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-foreground shadow-2xs outline-none transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15";
 
-const labelClass = "mb-1 block text-xs font-medium text-zinc-600";
+const labelClass = "mb-1 block text-xs font-medium text-muted";
 
 const MOEDAS: FieldOption[] = [
   { value: "BRL", label: "BRL · Real" },
@@ -436,7 +436,7 @@ function Resumo({
     <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl bg-brand-navy/5 px-4 py-3">
       {validos.map((item) => (
         <div key={item.label}>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">
             {item.label}
           </p>
           <p className="text-sm font-semibold text-brand-navy">{item.value}</p>
@@ -567,7 +567,7 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
 
   return (
     <>
-      <article className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md">
+      <article className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-sm transition duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-lg">
         <div className="h-1 bg-gradient-to-r from-brand-navy via-brand-blue to-brand-yellow" />
 
         <div className="flex flex-1 flex-col gap-4 p-5">
@@ -576,7 +576,7 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
               <h3 className="truncate text-base font-semibold text-brand-navy">
                 {tituloCenario(cenario)}
               </h3>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted">
                 {periodo(cenario.data_inicio, cenario.data_fim)}
               </p>
             </div>
@@ -604,12 +604,12 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
                   key={tab.key}
                   type="button"
                   onClick={() => setItens(tab.key)}
-                  className="rounded-xl border border-zinc-200 bg-zinc-50 px-2 py-2.5 text-center transition hover:border-brand-blue hover:bg-brand-blue/5"
+                  className="rounded-xl border border-line bg-surface-muted px-2 py-2.5 text-center transition duration-200 ease-out-expo hover:-translate-y-0.5 hover:border-brand-blue hover:bg-brand-blue/5"
                 >
                   <span className="block text-lg font-semibold text-brand-navy">
                     {total}
                   </span>
-                  <span className="block text-[11px] font-medium text-zinc-500">
+                  <span className="block text-[11px] font-medium text-muted">
                     {tab.label}
                   </span>
                 </button>
@@ -668,7 +668,7 @@ function ItensModal({
       description={periodo(cenario.data_inicio, cenario.data_fim)}
       size="lg"
     >
-      <div className="mb-4 flex gap-1 rounded-xl bg-zinc-100 p-1">
+      <div className="mb-4 flex gap-1 rounded-2xl bg-surface-sunken p-1">
         {TABS.map((item) => (
           <button
             key={item.key}
@@ -676,8 +676,8 @@ function ItensModal({
             onClick={() => onTabChange(item.key)}
             className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${
               tab === item.key
-                ? "bg-white text-brand-navy shadow-sm"
-                : "text-zinc-500 hover:text-zinc-800"
+                ? "bg-surface text-brand-navy shadow-sm"
+                : "text-muted hover:text-foreground"
             }`}
           >
             {item.label}
@@ -772,11 +772,11 @@ function CenarioModal({
 
         <div className="sm:col-span-4">
           <Feedback state={state} />
-          <div className="mt-3 flex justify-end gap-2 border-t border-zinc-200 pt-4">
+          <div className="mt-3 flex justify-end gap-2 border-t border-line pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
             >
               Cancelar
             </button>
@@ -828,7 +828,7 @@ function ExcluirCenarioModal({
       title="Excluir cenário"
       size="sm"
     >
-      <p className="text-sm text-zinc-700">
+      <p className="text-sm text-muted">
         Excluir <strong>{tituloCenario(cenario)}</strong>? Esta ação não pode ser
         desfeita.
       </p>
@@ -847,7 +847,7 @@ function ExcluirCenarioModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
+            className="rounded-xl px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
           >
             Cancelar
           </button>
@@ -881,7 +881,7 @@ function CardIcon({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`rounded-lg p-1.5 text-zinc-400 transition hover:bg-zinc-100 ${
+      className={`rounded-lg p-1.5 text-subtle transition hover:bg-surface-sunken ${
         danger ? "hover:text-brand-red" : "hover:text-brand-navy"
       }`}
     >
@@ -916,7 +916,7 @@ export function CenariosSection({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-brand-navy">Cenários</h2>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted">
             Destinos, períodos e os itens de cada proposta.
           </p>
         </div>
@@ -943,7 +943,7 @@ export function CenariosSection({
       </div>
 
       {cenarios.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-zinc-300 bg-white px-4 py-10 text-center text-sm text-zinc-500">
+        <p className="rounded-2xl border border-dashed border-line-strong bg-surface px-4 py-10 text-center text-sm text-muted">
           Nenhum cenário ainda. Crie o primeiro para montar a proposta.
         </p>
       ) : (

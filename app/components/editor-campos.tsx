@@ -177,7 +177,7 @@ export function EditorCampos({
         />
       </div>
 
-      <aside className="w-full shrink-0 space-y-4 rounded-xl bg-white p-4 shadow-lg lg:w-80">
+      <aside className="w-full shrink-0 space-y-4 rounded-2xl border border-line bg-surface p-4 shadow-lg lg:w-80">
         <div className="flex gap-2">
           <BotaoSecundario onClick={adicionarTexto}>+ Texto</BotaoSecundario>
           <BotaoSecundario onClick={adicionarLista}>+ Lista</BotaoSecundario>
@@ -189,10 +189,10 @@ export function EditorCampos({
               <button
                 type="button"
                 onClick={() => setSelecionado(indice)}
-                className={`w-full truncate rounded px-2 py-1 text-left transition ${
+                className={`w-full truncate rounded-lg px-2.5 py-1.5 text-left transition ${
                   selecionado === indice
-                    ? "bg-brand-navy text-white"
-                    : "hover:bg-zinc-100"
+                    ? "bg-brand-navy font-medium text-white shadow-2xs"
+                    : "text-muted hover:bg-surface-sunken hover:text-foreground"
                 }`}
               >
                 {campo.rotulo ||
@@ -203,12 +203,12 @@ export function EditorCampos({
             </li>
           ))}
           {campos.length === 0 ? (
-            <li className="px-2 py-1 text-zinc-500">Nenhum campo ainda.</li>
+            <li className="px-2 py-1 text-subtle">Nenhum campo ainda.</li>
           ) : null}
         </ul>
 
         {atual ? (
-          <div className="space-y-3 border-t border-zinc-200 pt-3">
+          <div className="space-y-3 border-t border-line pt-3">
             <Grupo rotulo="Rótulo">
               <input
                 type="text"
@@ -230,7 +230,7 @@ export function EditorCampos({
                 className={`${ENTRADA} font-mono`}
               />
             </Grupo>
-            <p className="-mt-2 text-xs text-zinc-500">
+            <p className="-mt-2 text-xs text-subtle">
               Identifica o campo nas propostas salvas. Mudar quebra o histórico.
             </p>
 
@@ -304,7 +304,7 @@ export function EditorCampos({
             ) : (
               <>
                 {atual.origem === "manual" ? (
-                  <p className="text-xs text-zinc-500">
+                  <p className="rounded-lg bg-surface-sunken px-2.5 py-2 text-xs text-muted">
                     O texto é digitado ao criar a proposta.
                   </p>
                 ) : (
@@ -400,7 +400,7 @@ export function EditorCampos({
                   type="color"
                   value={atual.cor ?? "#1b2a4a"}
                   onChange={(e) => atualizar({ cor: e.target.value })}
-                  className="h-9 w-full rounded border border-zinc-300"
+                  className="h-9 w-full cursor-pointer rounded-lg border border-line bg-surface"
                 />
               </Grupo>
               <Selecao
@@ -416,28 +416,28 @@ export function EditorCampos({
             <button
               type="button"
               onClick={remover}
-              className="text-sm font-semibold text-red-600 transition hover:underline"
+              className="text-sm font-semibold text-brand-red transition hover:underline"
             >
               Remover campo
             </button>
           </div>
         ) : (
-          <p className="border-t border-zinc-200 pt-3 text-sm text-zinc-500">
+          <p className="border-t border-line pt-3 text-sm text-subtle">
             Clique em um campo na página para arrastar e editar.
           </p>
         )}
 
-        <div className="border-t border-zinc-200 pt-3">
+        <div className="border-t border-line pt-3">
           <button
             type="button"
             onClick={salvar}
             disabled={salvando}
-            className="w-full rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+            className="w-full rounded-xl bg-brand-navy px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-navy/90 hover:shadow-md active:scale-[0.98] disabled:opacity-45"
           >
             {salvando ? "Salvando…" : "Salvar layout"}
           </button>
           {mensagem ? (
-            <p className="mt-2 text-center text-sm text-zinc-600">{mensagem}</p>
+            <p className="mt-2 text-center text-sm text-muted">{mensagem}</p>
           ) : null}
         </div>
       </aside>
@@ -446,7 +446,7 @@ export function EditorCampos({
 }
 
 const ENTRADA =
-  "w-full rounded border border-zinc-300 px-2 py-1 text-sm focus:border-brand-navy focus:outline-none";
+  "w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-foreground transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none";
 
 function Grupo({
   rotulo,
@@ -457,7 +457,7 @@ function Grupo({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-subtle">
         {rotulo}
       </span>
       {children}
@@ -528,7 +528,7 @@ function BotaoSecundario({
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-semibold text-brand-navy transition hover:bg-zinc-50"
+      className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold text-brand-navy transition duration-200 ease-out-expo hover:border-brand-blue/50 hover:bg-surface-muted active:scale-[0.98]"
     >
       {children}
     </button>

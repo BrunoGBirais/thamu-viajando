@@ -20,14 +20,14 @@ export function SeletorCenario({
   if (cenarios.length === 0) return null;
 
   return (
-    <label className="flex items-center gap-2 text-sm text-zinc-600">
+    <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-subtle">
       Amostra
       <select
         value={atual ?? ""}
         onChange={(event) =>
           router.replace(`?cenario=${event.target.value}`, { scroll: false })
         }
-        className="rounded-lg border border-zinc-300 px-2 py-1 text-sm text-zinc-900 outline-none focus:border-brand-blue"
+        className="rounded-xl border border-line bg-surface px-3 py-1.5 text-sm font-medium normal-case tracking-normal text-foreground shadow-2xs transition hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none"
       >
         {cenarios.map((cenario) => (
           <option key={cenario.id} value={cenario.id}>

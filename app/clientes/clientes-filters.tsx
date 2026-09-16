@@ -2,13 +2,10 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/app/components/ui/button";
+import { Card } from "@/app/components/ui/card";
+import { Field, Input, Select } from "@/app/components/ui/form";
 import { ORCAMENTO_FAIXAS } from "./filtros";
-
-const fieldClass =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
-
-const labelClass =
-  "mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500";
 
 export function ClientesFilters({
   perfis,
@@ -57,31 +54,23 @@ export function ClientesFilters({
   const hasFilters = Boolean(busca || perfil || etapa || orcamento);
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <Card className="animate-rise p-5">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <label htmlFor="busca" className={labelClass}>
-            Buscar
-          </label>
-          <input
+        <Field label="Buscar" htmlFor="busca" className="lg:col-span-2">
+          <Input
             id="busca"
             type="search"
             value={busca}
             onChange={(event) => setBusca(event.target.value)}
             placeholder="Nome, e-mail ou telefone"
-            className={fieldClass}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="perfil" className={labelClass}>
-            Perfil
-          </label>
-          <select
+        <Field label="Perfil" htmlFor="perfil">
+          <Select
             id="perfil"
             value={perfil}
             onChange={(event) => setParam("perfil", event.target.value)}
-            className={fieldClass}
           >
             <option value="">Todos</option>
             {perfis.map((value) => (
@@ -89,18 +78,14 @@ export function ClientesFilters({
                 {value}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
 
-        <div>
-          <label htmlFor="etapa" className={labelClass}>
-            Etapa
-          </label>
-          <select
+        <Field label="Etapa" htmlFor="etapa">
+          <Select
             id="etapa"
             value={etapa}
             onChange={(event) => setParam("etapa", event.target.value)}
-            className={fieldClass}
           >
             <option value="">Todas</option>
             {etapas.map((value) => (
@@ -108,18 +93,14 @@ export function ClientesFilters({
                 {value}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
 
-        <div>
-          <label htmlFor="orcamento" className={labelClass}>
-            Orçamento
-          </label>
-          <select
+        <Field label="Orçamento" htmlFor="orcamento">
+          <Select
             id="orcamento"
             value={orcamento}
             onChange={(event) => setParam("orcamento", event.target.value)}
-            className={fieldClass}
           >
             <option value="">Qualquer</option>
             {ORCAMENTO_FAIXAS.map((faixa) => (
@@ -127,22 +108,23 @@ export function ClientesFilters({
                 {faixa.label}
               </option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
       </div>
 
       {hasFilters && (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             setBusca("");
             router.replace(pathname);
           }}
-          className="mt-4 text-sm font-semibold text-brand-red transition hover:underline"
+          className="mt-4 text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
         >
           Limpar filtros
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

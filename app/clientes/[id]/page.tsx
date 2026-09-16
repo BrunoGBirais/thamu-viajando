@@ -60,9 +60,9 @@ export default async function ClientePage({
         name={metadata?.full_name}
         isAdmin={isAdmin === true}
       />
-      <main className="flex-1 bg-zinc-50 px-4 py-10 sm:px-6">
+      <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-5xl space-y-6">
-          <div>
+          <div className="animate-rise">
             <Link
               href="/clientes"
               className="inline-flex items-center gap-1 text-sm font-medium text-brand-blue transition hover:underline"
@@ -84,7 +84,7 @@ export default async function ClientePage({
             </Link>
 
             <div className="mt-2 flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold text-brand-navy">
+              <h1 className="text-3xl font-semibold tracking-tight text-brand-navy">
                 {cliente.nome}
               </h1>
               {cliente.etapa && (
@@ -93,7 +93,7 @@ export default async function ClientePage({
                 </span>
               )}
               {cliente.perfil && (
-                <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600">
+                <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium text-muted">
                   {cliente.perfil}
                 </span>
               )}

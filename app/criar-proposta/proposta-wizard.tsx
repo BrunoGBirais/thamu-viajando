@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gerarProposta } from "@/app/proposta/actions";
+import { Button } from "@/app/components/ui/button";
+import { Field, Input, Select, Textarea } from "@/app/components/ui/form";
 import {
   camposManuais,
   chaveDoCampo,
@@ -31,9 +33,6 @@ export type ClienteOpcao = {
   nome: string;
   cenarios: CenarioOpcao[];
 };
-
-const fieldClass =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
 
 // Colunas DATE chegam como "YYYY-MM-DD"; evita o deslocamento de fuso do Date.
 function formatDate(value: string | null) {
@@ -88,15 +87,14 @@ export function PropostaWizard({
   }, [chaveSalvos, valoresSalvos]);
 
   return (
-    <div className="space-y-6">
-      <Etapa numero={1} titulo="Cliente">
-        <select
+    <div className="space-y-4">
+      <Etapa numero={1} titulo="Cliente" concluida={Boolean(cliente)}>
+        <Select
           value={clienteId}
           onChange={(event) => {
             setClienteId(event.target.value);
             setCenarioId("");
           }}
-          className={fieldClass}
         >
           <option value="">Selecione o cliente</option>
           {clientes.map((item) => (
@@ -105,21 +103,20 @@ export function PropostaWizard({
               {item.cenarios.length === 0 ? " (sem propostas)" : ""}
             </option>
           ))}
-        </select>
+        </Select>
       </Etapa>
 
-      <Etapa numero={2} titulo="Proposta">
+      <Etapa numero={2} titulo="Proposta" concluida={Boolean(cenario)}>
         {!cliente ? (
-          <p className="text-sm text-zinc-500">Selecione um cliente primeiro.</p>
+          <p className="text-sm text-subtle">Selecione um cliente primeiro.</p>
         ) : cliente.cenarios.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-subtle">
             Este cliente ainda não tem propostas cadastradas.
           </p>
         ) : (
-          <select
+          <Select
             value={cenarioId}
             onChange={(event) => setCenarioId(event.target.value)}
-            className={fieldClass}
           >
             <option value="">Selecione a proposta</option>
             {cliente.cenarios.map((item) => (
@@ -127,15 +124,19 @@ export function PropostaWizard({
                 {rotuloCenario(item)}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </Etapa>
 
-      <Etapa numero={3} titulo="Template">
+      <Etapa numero={3} titulo="Template" concluida={Boolean(template)}>
         {templates.length === 0 ? (
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-subtle">
             Nenhum template cadastrado. Exporte o design do Canva, suba as
-            páginas no Storage e cadastre em <code>proposta_templates</code>.
+            páginas no Storage e cadastre em{" "}
+            <code className="rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-brand-navy">
+              proposta_templates
+            </code>
+            .
           </p>
         ) : (
           <TemplateCarousel
@@ -146,7 +147,7 @@ export function PropostaWizard({
         )}
       </Etapa>
 
-      <form action={gerarProposta} className="space-y-6">
+      <form action={gerarProposta} className="space-y-4">
         <input type="hidden" name="cenario_id" value={cenarioId} />
         <input type="hidden" name="template_id" value={templateId} />
 
@@ -170,19 +171,32 @@ export function PropostaWizard({
           </Etapa>
         ) : null}
 
-        <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-zinc-600">
-            {pronto
-              ? `${cliente!.nome} · ${rotuloCenario(cenario!)} · ${template!.nome}`
-              : "Escolha cliente, proposta e template para continuar."}
+        <div className="sticky bottom-4 flex flex-col gap-3 rounded-2xl border border-line bg-surface/85 p-4 shadow-lg backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted">
+            {pronto ? (
+              <span className="font-medium text-brand-navy">
+                {cliente!.nome} · {rotuloCenario(cenario!)} · {template!.nome}
+              </span>
+            ) : (
+              "Escolha cliente, proposta e template para continuar."
+            )}
           </p>
-          <button
-            type="submit"
-            disabled={!pronto}
-            className="rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100"
-          >
+          <Button type="submit" variant="accent" size="lg" disabled={!pronto}>
             Criar proposta
-          </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </Button>
         </div>
       </form>
     </div>
@@ -201,42 +215,44 @@ function CampoManual({
   const chave = chaveDoCampo(campo);
   const limite = campo.maxCaracteres ?? 500;
   const multilinha = limite > 120;
+  const id = `campo_${chave}`;
 
   return (
-    <div>
-      <label
-        htmlFor={`campo_${chave}`}
-        className="block text-sm font-medium text-brand-navy"
-      >
-        {campo.rotulo || chave}
-      </label>
-      {campo.descricao ? (
-        <p className="mt-0.5 text-xs text-zinc-500">{campo.descricao}</p>
-      ) : null}
+    <Field
+      label={campo.rotulo || chave}
+      htmlFor={id}
+      hint={
+        <span className="flex items-center justify-between gap-3">
+          <span>{campo.descricao}</span>
+          <span
+            className={
+              valor.length >= limite ? "text-brand-red" : "tabular-nums"
+            }
+          >
+            {valor.length}/{limite}
+          </span>
+        </span>
+      }
+    >
       {multilinha ? (
-        <textarea
-          id={`campo_${chave}`}
-          name={`campo_${chave}`}
+        <Textarea
+          id={id}
+          name={id}
           value={valor}
           maxLength={limite}
           rows={4}
           onChange={(event) => onChange(event.target.value)}
-          className={`mt-1.5 ${fieldClass}`}
         />
       ) : (
-        <input
-          id={`campo_${chave}`}
-          name={`campo_${chave}`}
+        <Input
+          id={id}
+          name={id}
           value={valor}
           maxLength={limite}
           onChange={(event) => onChange(event.target.value)}
-          className={`mt-1.5 ${fieldClass}`}
         />
       )}
-      <p className="mt-1 text-right text-xs text-zinc-400">
-        {valor.length}/{limite}
-      </p>
-    </div>
+    </Field>
   );
 }
 
@@ -277,38 +293,59 @@ function TemplateCarousel({
         onScroll={updateBounds}
         className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {templates.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelect(String(item.id))}
-            aria-pressed={String(item.id) === selectedId}
-            className={`w-[calc(50%-0.5rem)] flex-none snap-start overflow-hidden rounded-xl border bg-white text-left shadow-sm transition sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] ${
-              String(item.id) === selectedId
-                ? "border-brand-blue ring-2 ring-brand-blue/30"
-                : "border-zinc-200 hover:border-brand-blue"
-            }`}
-          >
-            <div className="relative aspect-[4/5] w-full bg-zinc-100">
-              {item.paginas[0] ? (
-                <Image
-                  src={item.paginas[0]}
-                  alt={item.nome}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-zinc-400">
-                  Sem prévia
-                </div>
-              )}
-            </div>
-            <p className="truncate p-3 text-sm font-medium text-brand-navy">
-              {item.nome}
-            </p>
-          </button>
-        ))}
+        {templates.map((item) => {
+          const ativo = String(item.id) === selectedId;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelect(String(item.id))}
+              aria-pressed={ativo}
+              className={`group w-[calc(50%-0.5rem)] flex-none snap-start overflow-hidden rounded-2xl border bg-surface text-left shadow-sm transition duration-300 ease-out-expo sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] ${
+                ativo
+                  ? "-translate-y-1 border-brand-blue shadow-lg ring-2 ring-brand-blue/25"
+                  : "border-line hover:-translate-y-1 hover:border-brand-blue/50 hover:shadow-md"
+              }`}
+            >
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-surface-sunken">
+                {item.paginas[0] ? (
+                  <Image
+                    src={item.paginas[0]}
+                    alt={item.nome}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-subtle">
+                    Sem prévia
+                  </div>
+                )}
+                {ativo ? (
+                  <span className="animate-pop absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue text-white shadow-md">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </span>
+                ) : null}
+              </div>
+              <p className="truncate px-3.5 py-3 text-sm font-semibold text-brand-navy">
+                {item.nome}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       <CarouselArrow
@@ -337,7 +374,7 @@ function CarouselArrow({
       type="button"
       onClick={onClick}
       aria-label={direction === -1 ? "Anterior" : "Próximo"}
-      className={`absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-brand-navy shadow-md transition hover:border-brand-blue hover:text-brand-blue ${
+      className={`absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface/90 text-brand-navy shadow-lg backdrop-blur-md transition hover:scale-110 hover:border-brand-blue hover:text-brand-blue ${
         direction === -1 ? "left-1" : "right-1"
       }`}
     >
@@ -360,17 +397,44 @@ function CarouselArrow({
 function Etapa({
   numero,
   titulo,
+  concluida,
   children,
 }: {
   numero: number;
   titulo: string;
+  concluida?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-brand-navy">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-navy text-xs text-white">
-          {numero}
+    <section
+      className="animate-rise rounded-2xl border border-line bg-surface p-5 shadow-sm transition duration-300 ease-out-expo hover:shadow-md"
+      style={{ animationDelay: `${(numero - 1) * 60}ms` }}
+    >
+      <h2 className="mb-4 flex items-center gap-2.5 text-sm font-semibold text-brand-navy">
+        <span
+          className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition ${
+            concluida
+              ? "bg-brand-blue text-white"
+              : "bg-surface-sunken text-brand-navy"
+          }`}
+        >
+          {concluida ? (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          ) : (
+            numero
+          )}
         </span>
         {titulo}
       </h2>

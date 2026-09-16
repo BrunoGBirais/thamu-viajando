@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { Button, type ButtonVariant } from "./ui/button";
 
 const SIZES = {
   sm: "max-w-md",
@@ -45,7 +46,7 @@ export function Modal({
 
   return (
     <div
-      className="overlay-in fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-zinc-900/50 p-4 backdrop-blur-sm sm:p-6"
+      className="animate-fade-in fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-brand-navy/35 p-4 backdrop-blur-md sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -54,13 +55,17 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`dialog-in my-auto w-full ${SIZES[size]} overflow-hidden rounded-2xl bg-white shadow-2xl`}
+        className={`animate-pop my-auto w-full ${SIZES[size]} overflow-hidden rounded-3xl border border-white/60 bg-surface shadow-2xl`}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4 sm:px-6">
-          <div>
-            <h2 className="text-base font-semibold text-brand-navy">{title}</h2>
+        <div className="brand-rule h-1" />
+
+        <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold tracking-tight text-brand-navy">
+              {title}
+            </h2>
             {description && (
-              <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+              <p className="mt-1 text-sm text-muted">{description}</p>
             )}
           </div>
 
@@ -68,7 +73,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="-mr-1 rounded-lg p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
+            className="-mr-1.5 -mt-1 rounded-xl p-2 text-subtle transition hover:bg-surface-sunken hover:text-brand-navy"
           >
             <svg
               width="18"
@@ -85,16 +90,46 @@ export function Modal({
           </button>
         </header>
 
-        <div className="max-h-[70vh] overflow-y-auto px-5 py-5 sm:px-6">
-          {children}
-        </div>
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-6">{children}</div>
 
         {footer && (
-          <footer className="border-t border-zinc-200 bg-zinc-50 px-5 py-3 sm:px-6">
+          <footer className="border-t border-line bg-surface-muted px-6 py-4">
             {footer}
           </footer>
         )}
       </div>
+    </div>
+  );
+}
+
+export function ModalActions({
+  onCancel,
+  confirmLabel,
+  confirmVariant = "primary",
+  pending = false,
+  disabled = false,
+  children,
+}: {
+  onCancel: () => void;
+  confirmLabel: string;
+  confirmVariant?: ButtonVariant;
+  pending?: boolean;
+  disabled?: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+      {children}
+      <Button variant="outline" onClick={onCancel} disabled={pending}>
+        Cancelar
+      </Button>
+      <Button
+        type="submit"
+        variant={confirmVariant}
+        disabled={pending || disabled}
+      >
+        {pending ? "Salvando..." : confirmLabel}
+      </Button>
     </div>
   );
 }

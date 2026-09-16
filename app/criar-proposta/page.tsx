@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ValoresManuais } from "@/lib/proposta/template";
 import { AppHeader } from "../components/app-header";
+import { Card, PageHeader } from "../components/ui/card";
 import {
   PropostaWizard,
   type ClienteOpcao,
@@ -57,21 +58,18 @@ export default async function CriarPropostaPage() {
         name={metadata?.full_name}
         isAdmin={isAdmin === true}
       />
-      <main className="flex-1 bg-zinc-50 px-4 py-10 sm:px-6">
-        <div className="mx-auto max-w-5xl space-y-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-brand-navy">
-              Criar proposta
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              Escolha o cliente, a proposta e o template do Canva.
-            </p>
-          </div>
+      <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-5xl space-y-8">
+          <PageHeader
+            eyebrow="Propostas"
+            title="Criar proposta"
+            description="Escolha o cliente, a proposta e o template do Canva."
+          />
 
           {clientesError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-brand-red">
+            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
               Não foi possível carregar os clientes: {clientesError.message}
-            </div>
+            </Card>
           ) : (
             <PropostaWizard
               clientes={clientes}

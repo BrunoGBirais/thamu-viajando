@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "../components/app-header";
+import { Card, PageHeader } from "../components/ui/card";
 import { ClientesFilters } from "./clientes-filters";
 import { ClientesPagination } from "./clientes-pagination";
 import { ClientesTable, type Cliente } from "./clientes-table";
@@ -99,18 +100,17 @@ export default async function ClientesPage({
         name={metadata?.full_name}
         isAdmin={isAdmin === true}
       />
-      <main className="flex-1 bg-zinc-50 px-4 py-10 sm:px-6">
-        <div className="mx-auto max-w-6xl space-y-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-brand-navy">
-              Gestão de clientes
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              {totalClientes === 1
+      <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-8">
+          <PageHeader
+            eyebrow="Carteira"
+            title="Gestão de clientes"
+            description={
+              totalClientes === 1
                 ? "1 cliente encontrado."
-                : `${totalClientes} clientes encontrados.`}
-            </p>
-          </div>
+                : `${totalClientes} clientes encontrados.`
+            }
+          />
 
           <ClientesFilters
             perfis={distinct(opcoes.map((item) => item.perfil))}
@@ -118,9 +118,9 @@ export default async function ClientesPage({
           />
 
           {error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-brand-red">
+            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
               Não foi possível carregar os clientes: {error.message}
-            </div>
+            </Card>
           ) : (
             <>
               <ClientesTable

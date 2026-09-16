@@ -1,9 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
-const buttonClass =
-  "rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-semibold text-brand-navy transition hover:border-brand-blue hover:text-brand-blue disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-300 disabled:hover:text-brand-navy";
+import { Button } from "@/app/components/ui/button";
 
 export function ClientesPagination({
   page,
@@ -39,30 +37,30 @@ export function ClientesPagination({
 
   return (
     <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-muted">
         Exibindo {from}–{to} de {total}
       </p>
 
       <div className="flex items-center gap-2">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => goTo(page - 1)}
           disabled={page <= 1}
-          className={buttonClass}
         >
           Anterior
-        </button>
-        <span className="text-sm text-zinc-600">
+        </Button>
+        <span className="px-1 text-sm font-medium text-muted">
           Página {page} de {totalPages}
         </span>
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => goTo(page + 1)}
           disabled={page >= totalPages}
-          className={buttonClass}
         >
           Próxima
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -34,36 +34,38 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={push}>
       {children}
 
-      <div className="pointer-events-none fixed bottom-6 right-6 z-[80] flex w-[min(22rem,calc(100vw-3rem))] flex-col gap-2">
+      <div className="pointer-events-none fixed bottom-6 right-6 z-[80] flex w-[min(22rem,calc(100vw-3rem))] flex-col gap-2.5">
         {toasts.map((toast) => (
           <div
             key={toast.id}
             role="status"
-            className={`toast-in flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg ${
-              toast.tone === "error" ? "bg-brand-red" : "bg-emerald-600"
-            }`}
+            className="animate-pop flex items-center gap-3 rounded-2xl border border-white/10 bg-brand-navy/92 px-4 py-3.5 text-sm font-medium text-white shadow-xl backdrop-blur-lg"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              className="shrink-0"
+            <span
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                toast.tone === "error"
+                  ? "bg-brand-red text-white"
+                  : "bg-emerald-400 text-brand-navy"
+              }`}
             >
-              {toast.tone === "error" ? (
-                <>
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 8v4M12 16h.01" />
-                </>
-              ) : (
-                <path d="M20 6 9 17l-5-5" />
-              )}
-            </svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                {toast.tone === "error" ? (
+                  <path d="M12 7v6M12 17h.01" />
+                ) : (
+                  <path d="M20 6 9 17l-5-5" />
+                )}
+              </svg>
+            </span>
             {toast.message}
           </div>
         ))}

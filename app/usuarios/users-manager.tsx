@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useState, type ReactNode } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { Modal, ModalActions } from "@/app/components/modal";
+import { Badge } from "@/app/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
+import { PageHeader } from "@/app/components/ui/card";
+import { Field, FormFeedback, Input } from "@/app/components/ui/form";
+import { Table, TableShell, Td, Th, Tr } from "@/app/components/ui/table";
 import {
   createUser,
   deleteUser,
@@ -16,10 +22,8 @@ export type UserRow = {
   createdAtLabel: string;
 };
 
-const inputClass =
-  "w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
-
-const labelClass = "block text-sm font-medium text-zinc-700";
+const checkboxClass =
+  "h-4 w-4 rounded-md border-line-strong accent-brand-navy disabled:opacity-50";
 
 export function UsersManager({
   users,
@@ -33,78 +37,77 @@ export function UsersManager({
   const [deleting, setDeleting] = useState<UserRow | null>(null);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-brand-navy">
-            Gestão de usuários
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            {users.length === 1
-              ? "1 usuário cadastrado."
-              : `${users.length} usuários cadastrados.`}
-          </p>
-        </div>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Administração"
+        title="Gestão de usuários"
+        description={
+          users.length === 1
+            ? "1 usuário cadastrado."
+            : `${users.length} usuários cadastrados.`
+        }
+        actions={
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Novo usuário
+          </Button>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="rounded-lg bg-brand-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-navy"
-        >
-          Novo usuário
-        </button>
-      </div>
-
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+      <TableShell className="animate-rise">
+        <Table className="min-w-[640px] text-left">
+          <thead>
             <tr>
-              <th className="px-4 py-3 font-semibold">Nome</th>
-              <th className="px-4 py-3 font-semibold">E-mail</th>
-              <th className="px-4 py-3 font-semibold">Perfil</th>
-              <th className="px-4 py-3 font-semibold">Criado em</th>
-              <th className="px-4 py-3 text-right font-semibold">Ações</th>
+              <Th>Nome</Th>
+              <Th>E-mail</Th>
+              <Th>Perfil</Th>
+              <Th>Criado em</Th>
+              <Th className="text-right">Ações</Th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-zinc-500">
+                <td colSpan={5} className="px-4 py-10 text-center text-muted">
                   Nenhum usuário encontrado.
                 </td>
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.user_id} className="hover:bg-zinc-50">
-                  <td className="px-4 py-3 font-medium text-brand-navy">
+                <Tr key={user.user_id}>
+                  <Td className="font-semibold text-brand-navy">
                     {user.full_name || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        user.role === "admin"
-                          ? "rounded-full bg-brand-navy px-2.5 py-1 text-xs font-semibold text-white"
-                          : "rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600"
-                      }
-                    >
+                  </Td>
+                  <Td className="text-muted">{user.email}</Td>
+                  <Td>
+                    <Badge tone={user.role === "admin" ? "navy" : "neutral"}>
                       {user.role === "admin" ? "Administrador" : "Visualizador"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600">
-                    {user.createdAtLabel}
-                  </td>
-                  <td className="px-4 py-3">
+                    </Badge>
+                  </Td>
+                  <Td className="text-muted">{user.createdAtLabel}</Td>
+                  <Td>
                     <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setEditing(user)}
-                        className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-brand-blue hover:text-brand-blue"
                       >
                         Editar
-                      </button>
-                      <button
-                        type="button"
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setDeleting(user)}
                         disabled={user.user_id === currentUserId}
                         title={
@@ -112,18 +115,18 @@ export function UsersManager({
                             ? "Você não pode excluir o seu próprio usuário."
                             : undefined
                         }
-                        className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-brand-red hover:text-brand-red disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-300 disabled:hover:text-zinc-700"
+                        className="text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
                       >
                         Excluir
-                      </button>
+                      </Button>
                     </div>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))
             )}
           </tbody>
-        </table>
-      </div>
+        </Table>
+      </TableShell>
 
       {creating && <CreateDialog onClose={() => setCreating(false)} />}
       {editing && (
@@ -140,93 +143,6 @@ export function UsersManager({
   );
 }
 
-function Dialog({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button
-        type="button"
-        aria-label="Fechar"
-        onClick={onClose}
-        className="absolute inset-0 cursor-default bg-black/50"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="relative w-full max-w-md overflow-hidden rounded-xl bg-white shadow-xl"
-      >
-        <div className="h-1 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-blue" />
-        <div className="p-6">
-          <h2 className="text-lg font-semibold text-brand-navy">{title}</h2>
-          <div className="mt-4">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FormFeedback({ state }: { state: UserFormState }) {
-  if (!state?.error) return null;
-
-  return (
-    <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-brand-red">
-      {state.error}
-    </p>
-  );
-}
-
-function DialogActions({
-  pending,
-  confirmLabel,
-  danger = false,
-  onClose,
-}: {
-  pending: boolean;
-  confirmLabel: string;
-  danger?: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <div className="flex justify-end gap-3 pt-2">
-      <button
-        type="button"
-        onClick={onClose}
-        className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
-      >
-        Cancelar
-      </button>
-      <button
-        type="submit"
-        disabled={pending}
-        className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60 ${
-          danger
-            ? "bg-brand-red hover:bg-red-700"
-            : "bg-brand-navy hover:bg-brand-blue"
-        }`}
-      >
-        {pending ? "Salvando..." : confirmLabel}
-      </button>
-    </div>
-  );
-}
-
 function CreateDialog({ onClose }: { onClose: () => void }) {
   const [state, formAction, pending] = useActionState<UserFormState, FormData>(
     createUser,
@@ -238,63 +154,51 @@ function CreateDialog({ onClose }: { onClose: () => void }) {
   }, [state, onClose]);
 
   return (
-    <Dialog title="Novo usuário" onClose={onClose}>
+    <Modal open onClose={onClose} title="Novo usuário" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
 
-        <div className="space-y-1">
-          <label htmlFor="new-name" className={labelClass}>
-            Nome
-          </label>
-          <input id="new-name" name="full_name" required className={inputClass} />
-        </div>
+        <Field label="Nome" htmlFor="new-name">
+          <Input id="new-name" name="full_name" required />
+        </Field>
 
-        <div className="space-y-1">
-          <label htmlFor="new-email" className={labelClass}>
-            E-mail
-          </label>
-          <input
+        <Field label="E-mail" htmlFor="new-email">
+          <Input
             id="new-email"
             name="email"
             type="email"
             required
             autoComplete="off"
-            className={inputClass}
           />
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label htmlFor="new-password" className={labelClass}>
-            Senha
-          </label>
-          <input
+        <Field
+          label="Senha"
+          htmlFor="new-password"
+          hint="Mínimo de 8 caracteres."
+        >
+          <Input
             id="new-password"
             name="password"
             type="password"
             minLength={8}
             required
             autoComplete="new-password"
-            className={inputClass}
           />
-          <p className="text-xs text-zinc-500">Mínimo de 8 caracteres.</p>
-        </div>
+        </Field>
 
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
-          <input
-            type="checkbox"
-            name="is_admin"
-            className="h-4 w-4 rounded border-zinc-300 accent-brand-navy"
-          />
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
+          <input type="checkbox" name="is_admin" className={checkboxClass} />
           Administrador
         </label>
 
-        <DialogActions
-          pending={pending}
+        <ModalActions
+          onCancel={onClose}
           confirmLabel="Criar usuário"
-          onClose={onClose}
+          pending={pending}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -317,54 +221,49 @@ function EditDialog({
   }, [state, onClose]);
 
   return (
-    <Dialog title="Editar usuário" onClose={onClose}>
+    <Modal open onClose={onClose} title="Editar usuário" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
         <input type="hidden" name="user_id" value={user.user_id} />
 
-        <div className="space-y-1">
-          <label className={labelClass}>E-mail</label>
-          <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-600">
+        <Field label="E-mail">
+          <p className="rounded-xl border border-line bg-surface-sunken px-3.5 py-2.5 text-sm text-muted">
             {user.email}
           </p>
-        </div>
+        </Field>
 
-        <div className="space-y-1">
-          <label htmlFor="edit-name" className={labelClass}>
-            Nome
-          </label>
-          <input
+        <Field label="Nome" htmlFor="edit-name">
+          <Input
             id="edit-name"
             name="full_name"
             required
             defaultValue={user.full_name}
-            className={inputClass}
           />
-        </div>
+        </Field>
 
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
           <input
             type="checkbox"
             name="is_admin"
             defaultChecked={user.role === "admin"}
             disabled={isSelf}
-            className="h-4 w-4 rounded border-zinc-300 accent-brand-navy disabled:opacity-50"
+            className={checkboxClass}
           />
           Administrador
         </label>
         {isSelf && (
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-subtle">
             Você não pode alterar o seu próprio perfil de acesso.
           </p>
         )}
 
-        <DialogActions
-          pending={pending}
+        <ModalActions
+          onCancel={onClose}
           confirmLabel="Salvar"
-          onClose={onClose}
+          pending={pending}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }
 
@@ -385,26 +284,26 @@ function DeleteDialog({
   }, [state, onClose]);
 
   return (
-    <Dialog title="Excluir usuário" onClose={onClose}>
+    <Modal open onClose={onClose} title="Excluir usuário" size="sm">
       <form action={formAction} className="space-y-4">
-        <FormFeedback state={state} />
+        <FormFeedback error={state?.error} />
         <input type="hidden" name="user_id" value={user.user_id} />
 
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-muted">
           Tem certeza que deseja excluir{" "}
-          <strong className="text-brand-navy">
+          <strong className="font-semibold text-brand-navy">
             {user.full_name || user.email}
           </strong>
           ? Essa ação não pode ser desfeita.
         </p>
 
-        <DialogActions
-          pending={pending}
+        <ModalActions
+          onCancel={onClose}
           confirmLabel="Excluir"
-          danger
-          onClose={onClose}
+          confirmVariant="danger"
+          pending={pending}
         />
       </form>
-    </Dialog>
+    </Modal>
   );
 }

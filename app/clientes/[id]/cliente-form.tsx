@@ -8,9 +8,9 @@ import { formatTelefone } from "../telefone";
 import { updateCliente, type ClienteFormState } from "./actions";
 
 const fieldClass =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30";
+  "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-foreground shadow-2xs transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none";
 
-const labelClass = "mb-1 block text-sm font-medium text-zinc-700";
+const labelClass = "mb-1.5 block text-sm font-medium text-foreground";
 
 function Field({
   name,
@@ -69,15 +69,15 @@ export function ClientePainel({ cliente }: { cliente: Cliente }) {
 
   return (
     <>
-      <section className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-6 py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+      <section className="animate-rise rounded-2xl border border-line bg-surface shadow-sm">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
             Dados do cliente
           </h2>
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-navy px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-brand-blue"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-navy px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-blue hover:shadow-md active:scale-[0.98]"
           >
             <svg
               width="14"
@@ -153,13 +153,13 @@ function ClienteForm({
       <input type="hidden" name="id" value={cliente.id} />
 
       {state?.error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-brand-red">
+        <p className="rounded-xl border border-brand-red/20 bg-brand-red/8 px-3.5 py-2.5 text-sm font-medium text-brand-red">
           {state.error}
         </p>
       )}
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
           Contato
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -188,7 +188,7 @@ function ClienteForm({
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
           Viagem
         </h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -223,7 +223,7 @@ function ClienteForm({
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
           Negociação
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -256,18 +256,18 @@ function ClienteForm({
         </div>
       </section>
 
-      <div className="flex justify-end gap-2 border-t border-zinc-200 pt-4">
+      <div className="flex justify-end gap-2 border-t border-line pt-4">
         <button
           type="button"
           onClick={onSaved}
-          className="rounded-lg px-4 py-2.5 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
+          className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-brand-red px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-navy disabled:opacity-60"
+          className="rounded-xl bg-brand-red px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-navy hover:shadow-md active:scale-[0.98] disabled:opacity-45"
         >
           {pending ? "Salvando..." : "Salvar alterações"}
         </button>
@@ -279,10 +279,12 @@ function ClienteForm({
 function Info({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-subtle">
         {label}
       </dt>
-      <dd className="mt-0.5 text-sm text-zinc-800">{value || "—"}</dd>
+      <dd className="mt-1 text-sm font-medium text-foreground">
+        {value || "—"}
+      </dd>
     </div>
   );
 }

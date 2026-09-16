@@ -271,7 +271,7 @@ function CampoRender({
           ? `cursor-move outline-dashed outline-1 ${
               editor.selecionado === indice
                 ? "bg-brand-navy/10 outline-2 outline-brand-navy"
-                : "outline-zinc-400"
+                : "outline-line-strong"
             }`
           : ""
       }`}

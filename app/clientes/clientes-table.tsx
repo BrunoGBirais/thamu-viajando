@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Badge } from "../components/ui/badge";
+import { EmptyState } from "../components/ui/card";
+import { Table, TableShell, Td, Th, Tr } from "../components/ui/table";
 import { formatTelefone } from "./telefone";
 
 export type Cliente = {
@@ -54,72 +57,71 @@ export function ClientesTable({
   emptyMessage?: string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <table className="w-full min-w-[900px] text-left text-sm">
-        <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+    <TableShell className="animate-rise">
+      <Table className="min-w-[900px] text-left">
+        <thead>
           <tr>
-            <th className="px-4 py-3 font-semibold">Cliente</th>
-            <th className="px-4 py-3 font-semibold">Telefone</th>
-            <th className="px-4 py-3 font-semibold">Período</th>
-            <th className="px-4 py-3 font-semibold">Viajantes</th>
-            <th className="px-4 py-3 font-semibold">Orçamento</th>
-            <th className="px-4 py-3 font-semibold">Etapa</th>
-            <th className="px-4 py-3 font-semibold">Último contato</th>
+            <Th>Cliente</Th>
+            <Th>Telefone</Th>
+            <Th>Período</Th>
+            <Th>Viajantes</Th>
+            <Th>Orçamento</Th>
+            <Th>Etapa</Th>
+            <Th>Último contato</Th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100">
+        <tbody>
           {clientes.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-10 text-center text-zinc-500">
-                {emptyMessage}
+              <td colSpan={7} className="p-4">
+                <EmptyState
+                  title={emptyMessage}
+                  className="border-0 bg-transparent py-10"
+                />
               </td>
             </tr>
           ) : (
             clientes.map((cliente) => (
-              <tr key={cliente.id} className="align-top hover:bg-zinc-50">
-                <td className="px-4 py-3">
+              <Tr key={cliente.id} className="align-top">
+                <Td>
                   <Link
                     href={`/clientes/${cliente.id}`}
-                    className="font-medium text-brand-navy transition hover:text-brand-blue hover:underline"
+                    className="font-semibold text-brand-navy transition hover:text-brand-blue"
                   >
                     {cliente.nome}
                   </Link>
                   {cliente.perfil && (
-                    <p className="text-xs text-zinc-500">{cliente.perfil}</p>
+                    <p className="mt-0.5 text-xs text-subtle">{cliente.perfil}</p>
                   )}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
+                </Td>
+                <Td className="text-muted">
                   {formatTelefone(cliente.telefone) || "—"}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
+                </Td>
+                <Td className="text-muted">
                   {cliente.periodo_para_viajar ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
-                  {formatTravelers(cliente)}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
+                </Td>
+                <Td className="text-muted">{formatTravelers(cliente)}</Td>
+                <Td className="font-medium text-foreground">
                   {formatMoney(cliente.orcamento)}
-                </td>
-                <td className="px-4 py-3">
+                </Td>
+                <Td>
                   {cliente.etapa ? (
-                    <span className="rounded-full bg-brand-blue/10 px-2.5 py-1 text-xs font-semibold text-brand-navy">
-                      {cliente.etapa}
-                    </span>
+                    <Badge tone="blue">{cliente.etapa}</Badge>
                   ) : (
-                    <span className="text-zinc-400">—</span>
+                    <span className="text-subtle">—</span>
                   )}
-                </td>
-                <td className="px-4 py-3 text-zinc-600">
+                </Td>
+                <Td className="text-muted">
                   {formatDate(cliente.data_ultimo_contato)}
                   {cliente.acao && (
-                    <p className="text-xs text-zinc-500">{cliente.acao}</p>
+                    <p className="mt-0.5 text-xs text-subtle">{cliente.acao}</p>
                   )}
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             ))
           )}
         </tbody>
-      </table>
-    </div>
+      </Table>
+    </TableShell>
   );
 }

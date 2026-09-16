@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useActionState } from "react";
+import { Button } from "@/app/components/ui/button";
+import { Field, FormFeedback, Input } from "@/app/components/ui/form";
 import { login, type LoginState } from "./actions";
 
 export default function LoginPage() {
@@ -11,66 +13,58 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-gradient-to-br from-brand-navy via-brand-navy to-[#0f2247] px-4 py-12">
+    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#0c1c3a] px-4 py-12">
       {/* Manchas decorativas com as cores do logo */}
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-blue/30 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-brand-red/30 blur-3xl" />
+      <div className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-brand-blue/25 blur-[100px]" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 h-[26rem] w-[26rem] rounded-full bg-brand-red/25 blur-[100px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-yellow/12 blur-[90px]" />
 
-      <div className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="h-1.5 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-blue" />
+      <div className="animate-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/12 bg-surface/95 shadow-2xl backdrop-blur-xl">
+        <div className="brand-rule h-1.5" />
 
         <form action={action} className="flex flex-col gap-5 p-8">
-          <div className="flex flex-col items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="ThaMu Viajando"
-              width={200}
-              height={125}
-              priority
-              className="h-auto w-[180px]"
-            />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="ThaMu Viajando"
+            width={200}
+            height={125}
+            priority
+            className="mx-auto h-auto w-[170px]"
+          />
 
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-brand-navy">E-mail</span>
-            <input
+          <Field label="E-mail" htmlFor="login-email">
+            <Input
+              id="login-email"
               name="email"
               type="email"
               required
               autoComplete="email"
               placeholder="voce@exemplo.com"
-              className="h-11 rounded-lg border border-zinc-300 px-3 text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30"
             />
-          </label>
+          </Field>
 
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-brand-navy">Senha</span>
-            <input
+          <Field label="Senha" htmlFor="login-password">
+            <Input
+              id="login-password"
               name="password"
               type="password"
               required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="h-11 rounded-lg border border-zinc-300 px-3 text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/30"
             />
-          </label>
+          </Field>
 
-          {state?.error && (
-            <p
-              role="alert"
-              className="rounded-lg border border-brand-red/20 bg-brand-red/10 px-3 py-2 text-sm text-brand-red"
-            >
-              {state.error}
-            </p>
-          )}
+          <FormFeedback error={state?.error} />
 
-          <button
+          <Button
             type="submit"
+            variant="danger"
+            size="lg"
             disabled={pending}
-            className="h-11 rounded-full bg-brand-red font-semibold text-white transition-colors hover:bg-brand-navy disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-full"
           >
             {pending ? "Entrando..." : "Entrar"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { montarDados, type PropostaTemplate } from "@/lib/proposta/template";
 import { EditorCampos } from "../../components/editor-campos";
+import { buttonClass } from "../../components/ui/button";
 import { SeletorCenario, type CenarioAmostra } from "./seletor-cenario";
 
 export default async function TemplateEditorPage({
@@ -60,23 +61,20 @@ export default async function TemplateEditorPage({
   const dados = montarDados(cliente ?? {}, dadosCenario);
 
   return (
-    <main className="min-h-screen bg-zinc-100 px-4 py-8">
-      <div className="mx-auto mb-6 flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
+    <main className="app-canvas min-h-screen px-4 py-8">
+      <div className="animate-rise mx-auto mb-6 flex max-w-[1400px] flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-surface/85 px-5 py-3.5 shadow-lg backdrop-blur-xl">
         <div>
-          <h1 className="text-lg font-semibold text-brand-navy">
+          <h1 className="text-lg font-semibold tracking-tight text-brand-navy">
             {template.nome}
           </h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted">
             Arraste os campos sobre a arte para posicioná-los.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <SeletorCenario cenarios={cenarios} atual={cenarioId} />
-          <Link
-            href="/templates"
-            className="text-sm font-semibold text-brand-navy transition hover:underline"
-          >
+          <Link href="/templates" className={buttonClass("outline", "sm")}>
             Voltar
           </Link>
         </div>

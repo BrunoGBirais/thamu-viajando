@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "../components/app-header";
+import { Card } from "../components/ui/card";
 import { UsersManager, type UserRow } from "./users-manager";
 
 type ListedUser = {
@@ -60,21 +61,21 @@ export default async function UsuariosPage() {
         name={metadata?.full_name}
         isAdmin={isAdmin === true}
       />
-      <main className="flex-1 bg-zinc-50 px-4 py-10 sm:px-6">
+      <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-5xl">
           {isAdmin !== true ? (
-            <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center shadow-sm">
-              <h1 className="text-xl font-semibold text-brand-navy">
+            <Card className="p-10 text-center">
+              <h1 className="text-xl font-semibold tracking-tight text-brand-navy">
                 Acesso restrito
               </h1>
-              <p className="mt-2 text-sm text-zinc-600">
+              <p className="mt-2 text-sm text-muted">
                 Somente administradores podem gerenciar usuários.
               </p>
-            </div>
+            </Card>
           ) : loadError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-brand-red">
+            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
               Não foi possível carregar os usuários: {loadError}
-            </div>
+            </Card>
           ) : (
             <UsersManager users={users} currentUserId={currentUserId} />
           )}
