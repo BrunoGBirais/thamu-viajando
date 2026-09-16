@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import type { ValoresManuais } from "@/lib/proposta/template";
 import { AppHeader } from "../components/app-header";
 import {
   PropostaWizard,
@@ -22,7 +23,7 @@ export default async function CriarPropostaPage() {
 
   const { data: isAdmin } = await supabase.rpc("thamu_viajando_is_admin");
 
-  const [{ data: clienteRows, error: clientesError }, { data: templateRows }] =
+  const [{ data: clienteRows, error: clientesError }, { data: templateRows }, { data: valorRows }] =
     await Promise.all([
       supabase
         .from("clientes")
@@ -30,9 +31,10 @@ export default async function CriarPropostaPage() {
         .order("nome", { ascending: true }),
       supabase
         .from("proposta_templates")
-        .select("id, nome, paginas")
+        .select("id, nome, paginas, campos")
         .eq("ativo", true)
         .order("nome", { ascending: true }),
+      supabase.from("proposta_valores").select("cenario_id, template_id, valores"),
     ]);
 
   if (clientesError) {
@@ -41,6 +43,12 @@ export default async function CriarPropostaPage() {
 
   const clientes = (clienteRows ?? []) as unknown as ClienteOpcao[];
   const templates = (templateRows ?? []) as unknown as TemplateOpcao[];
+  const valoresSalvos = Object.fromEntries(
+    (valorRows ?? []).map((row) => [
+      `${row.cenario_id}:${row.template_id}`,
+      (row.valores ?? {}) as ValoresManuais,
+    ])
+  );
 
   return (
     <>
@@ -65,7 +73,11 @@ export default async function CriarPropostaPage() {
               Não foi possível carregar os clientes: {clientesError.message}
             </div>
           ) : (
-            <PropostaWizard clientes={clientes} templates={templates} />
+            <PropostaWizard
+              clientes={clientes}
+              templates={templates}
+              valoresSalvos={valoresSalvos}
+            />
           )}
         </div>
       </main>

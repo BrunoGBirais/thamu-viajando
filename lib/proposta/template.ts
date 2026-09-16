@@ -21,6 +21,7 @@ type Base = {
   x: number;
   y: number;
   w?: number;
+  rotacao?: number;
   fontSize?: number;
   familia?: Familia;
   cor?: string;
@@ -63,6 +64,9 @@ export type DadosProposta = {
   totais: Record<string, number>;
 };
 
+// Texto digitado na criação da proposta, indexado pela chave do campo.
+export type ValoresManuais = Record<string, string>;
+
 export function slugDeChave(valor: string) {
   return valor
     .normalize("NFD")
@@ -80,6 +84,18 @@ export function chavePadrao(campo: Campo) {
       : (campo as CampoTexto).campo;
 
   return slugDeChave(origem) || "campo";
+}
+
+export function chaveDoCampo(campo: Campo) {
+  return campo.chave || chavePadrao(campo);
+}
+
+// Listas e campos de lookup não são digitáveis: só texto com origem "manual".
+export function camposManuais(campos: Campo[]): CampoTexto[] {
+  return campos.filter(
+    (campo): campo is CampoTexto =>
+      campo.tipo !== "lista" && campo.origem === "manual"
+  );
 }
 
 const currency = new Intl.NumberFormat("pt-BR", {
@@ -156,8 +172,17 @@ function buscar(origem: unknown, caminho: string): unknown {
     );
 }
 
-export function valorDoCampo(dados: DadosProposta, campo: CampoTexto) {
-  const valor = formatar(buscar(dados, campo.campo), campo.formato);
+export function valorDoCampo(
+  dados: DadosProposta,
+  campo: CampoTexto,
+  valores?: ValoresManuais
+) {
+  const bruto =
+    campo.origem === "manual"
+      ? valores?.[chaveDoCampo(campo)] ?? ""
+      : buscar(dados, campo.campo);
+
+  const valor = formatar(bruto, campo.formato);
   return valor === "" ? "" : `${campo.prefixo ?? ""}${valor}${campo.sufixo ?? ""}`;
 }
 

@@ -76,6 +76,7 @@ function sanitizarCampo(bruto: unknown): Campo | null {
     w: entrada.w === undefined || entrada.w === null
       ? undefined
       : numero(entrada.w, 50, 1, 120),
+    rotacao: entrada.rotacao ? numero(entrada.rotacao, 0, -180, 180) : undefined,
     fontSize: numero(entrada.fontSize, 2.5, 0.5, 30),
     familia: TIPOGRAFIAS.includes(String(entrada.familia))
       ? (String(entrada.familia) as Familia)

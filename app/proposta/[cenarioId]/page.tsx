@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { montarDados, type PropostaTemplate } from "@/lib/proposta/template";
+import { montarDados, type PropostaTemplate, type ValoresManuais } from "@/lib/proposta/template";
 import { PropostaDocumento } from "../../components/proposta-documento";
 import { PrintButton } from "./print-button";
 
@@ -26,7 +26,7 @@ export default async function PropostaPage({
     notFound();
   }
 
-  const [{ data: cenario }, { data: template }] = await Promise.all([
+  const [{ data: cenario }, { data: template }, { data: salvos }] = await Promise.all([
     supabase
       .from("cenarios")
       .select("*, clientes(*), voos(*), transporte(*), passeios(*)")
@@ -37,6 +37,12 @@ export default async function PropostaPage({
       .select("*")
       .eq("id", templateId)
       .maybeSingle(),
+    supabase
+      .from("proposta_valores")
+      .select("valores")
+      .eq("cenario_id", cenarioId)
+      .eq("template_id", templateId)
+      .maybeSingle(),
   ]);
 
   if (!cenario || !template) {
@@ -45,6 +51,7 @@ export default async function PropostaPage({
 
   const { clientes: cliente, ...dadosCenario } = cenario;
   const dados = montarDados(cliente ?? {}, dadosCenario);
+  const valores = (salvos?.valores ?? {}) as ValoresManuais;
 
   return (
     <main className="min-h-screen bg-zinc-100 px-4 py-8 print:bg-white print:p-0">
@@ -76,7 +83,11 @@ export default async function PropostaPage({
         </div>
       </div>
 
-      <PropostaDocumento template={template as PropostaTemplate} dados={dados} />
+      <PropostaDocumento
+        template={template as PropostaTemplate}
+        dados={dados}
+        valores={valores}
+      />
     </main>
   );
 }

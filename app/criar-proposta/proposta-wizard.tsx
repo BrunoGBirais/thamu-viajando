@@ -1,13 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { gerarProposta } from "@/app/proposta/actions";
+import {
+  camposManuais,
+  chaveDoCampo,
+  type Campo,
+  type CampoTexto,
+  type ValoresManuais,
+} from "@/lib/proposta/template";
 
 export type TemplateOpcao = {
   id: number;
   nome: string;
   paginas: string[];
+  campos: Campo[];
 };
 
 export type CenarioOpcao = {
@@ -48,9 +56,11 @@ function rotuloCenario(cenario: CenarioOpcao) {
 export function PropostaWizard({
   clientes,
   templates,
+  valoresSalvos,
 }: {
   clientes: ClienteOpcao[];
   templates: TemplateOpcao[];
+  valoresSalvos: Record<string, ValoresManuais>;
 }) {
   const [clienteId, setClienteId] = useState("");
   const [cenarioId, setCenarioId] = useState("");
@@ -63,7 +73,19 @@ export function PropostaWizard({
   const cenario = cliente?.cenarios.find((item) => String(item.id) === cenarioId);
   const template = templates.find((item) => String(item.id) === templateId);
 
+  const manuais = useMemo(
+    () => camposManuais(template?.campos ?? []),
+    [template]
+  );
+
   const pronto = Boolean(cliente && cenario && template);
+  const chaveSalvos = `${cenarioId}:${templateId}`;
+  const [valores, setValores] = useState<ValoresManuais>({});
+
+  // Reabrir a mesma proposta/template traz de volta o que já foi digitado.
+  useEffect(() => {
+    setValores(valoresSalvos[chaveSalvos] ?? {});
+  }, [chaveSalvos, valoresSalvos]);
 
   return (
     <div className="space-y-6">
@@ -124,25 +146,96 @@ export function PropostaWizard({
         )}
       </Etapa>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-zinc-600">
-          {pronto
-            ? `${cliente!.nome} · ${rotuloCenario(cenario!)} · ${template!.nome}`
-            : "Escolha cliente, proposta e template para continuar."}
-        </p>
-        {pronto ? (
-          <Link
-            href={`/proposta/${cenarioId}?template=${templateId}`}
-            className="rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:brightness-110"
+      <form action={gerarProposta} className="space-y-6">
+        <input type="hidden" name="cenario_id" value={cenarioId} />
+        <input type="hidden" name="template_id" value={templateId} />
+
+        {template && manuais.length > 0 ? (
+          <Etapa numero={4} titulo="Preenchimento à mão">
+            <div className="space-y-4">
+              {manuais.map((campo) => (
+                <CampoManual
+                  key={chaveDoCampo(campo)}
+                  campo={campo}
+                  valor={valores[chaveDoCampo(campo)] ?? ""}
+                  onChange={(texto) =>
+                    setValores((atual) => ({
+                      ...atual,
+                      [chaveDoCampo(campo)]: texto,
+                    }))
+                  }
+                />
+              ))}
+            </div>
+          </Etapa>
+        ) : null}
+
+        <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-zinc-600">
+            {pronto
+              ? `${cliente!.nome} · ${rotuloCenario(cenario!)} · ${template!.nome}`
+              : "Escolha cliente, proposta e template para continuar."}
+          </p>
+          <button
+            type="submit"
+            disabled={!pronto}
+            className="rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100"
           >
             Criar proposta
-          </Link>
-        ) : (
-          <span className="cursor-not-allowed rounded-lg bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white opacity-50">
-            Criar proposta
-          </span>
-        )}
-      </div>
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function CampoManual({
+  campo,
+  valor,
+  onChange,
+}: {
+  campo: CampoTexto;
+  valor: string;
+  onChange: (texto: string) => void;
+}) {
+  const chave = chaveDoCampo(campo);
+  const limite = campo.maxCaracteres ?? 500;
+  const multilinha = limite > 120;
+
+  return (
+    <div>
+      <label
+        htmlFor={`campo_${chave}`}
+        className="block text-sm font-medium text-brand-navy"
+      >
+        {campo.rotulo || chave}
+      </label>
+      {campo.descricao ? (
+        <p className="mt-0.5 text-xs text-zinc-500">{campo.descricao}</p>
+      ) : null}
+      {multilinha ? (
+        <textarea
+          id={`campo_${chave}`}
+          name={`campo_${chave}`}
+          value={valor}
+          maxLength={limite}
+          rows={4}
+          onChange={(event) => onChange(event.target.value)}
+          className={`mt-1.5 ${fieldClass}`}
+        />
+      ) : (
+        <input
+          id={`campo_${chave}`}
+          name={`campo_${chave}`}
+          value={valor}
+          maxLength={limite}
+          onChange={(event) => onChange(event.target.value)}
+          className={`mt-1.5 ${fieldClass}`}
+        />
+      )}
+      <p className="mt-1 text-right text-xs text-zinc-400">
+        {valor.length}/{limite}
+      </p>
     </div>
   );
 }

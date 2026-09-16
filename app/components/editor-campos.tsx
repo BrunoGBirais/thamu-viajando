@@ -145,6 +145,14 @@ export function EditorCampos({
     );
   };
 
+  const girar = (indice: number, rotacao: number) => {
+    setCampos((lista) =>
+      lista.map((campo, posicao) =>
+        posicao === indice ? { ...campo, rotacao } : campo
+      )
+    );
+  };
+
   const salvar = () => {
     setMensagem("");
     iniciarSalvamento(async () => {
@@ -159,7 +167,13 @@ export function EditorCampos({
         <PropostaDocumento
           template={{ ...template, campos }}
           dados={dados}
-          editor={{ selecionado, selecionar: setSelecionado, mover, redimensionar }}
+          editor={{
+            selecionado,
+            selecionar: setSelecionado,
+            mover,
+            redimensionar,
+            girar,
+          }}
         />
       </div>
 
@@ -289,12 +303,18 @@ export function EditorCampos({
               </>
             ) : (
               <>
-                <Selecao
-                  rotulo="Dado"
-                  valor={(atual as CampoTexto).campo}
-                  opcoes={caminhos}
-                  onChange={(valor) => atualizar({ campo: valor })}
-                />
+                {atual.origem === "manual" ? (
+                  <p className="text-xs text-zinc-500">
+                    O texto é digitado ao criar a proposta.
+                  </p>
+                ) : (
+                  <Selecao
+                    rotulo="Dado"
+                    valor={(atual as CampoTexto).campo}
+                    opcoes={caminhos}
+                    onChange={(valor) => atualizar({ campo: valor })}
+                  />
+                )}
                 <Selecao
                   rotulo="Formato"
                   valor={(atual as CampoTexto).formato ?? "texto"}
@@ -330,6 +350,12 @@ export function EditorCampos({
                 valor={atual.fontSize ?? 2.5}
                 passo={0.1}
                 onChange={(valor) => atualizar({ fontSize: valor })}
+              />
+              <NumeroInput
+                rotulo="Ângulo (°)"
+                valor={atual.rotacao ?? 0}
+                passo={1}
+                onChange={(valor) => atualizar({ rotacao: valor || undefined })}
               />
               <NumeroInput
                 rotulo="Página"

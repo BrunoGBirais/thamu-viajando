@@ -11,6 +11,7 @@ import {
   type CampoTexto,
   type DadosProposta,
   type PropostaTemplate,
+  type ValoresManuais,
 } from "@/lib/proposta/template";
 
 export type EditorDocumento = {
@@ -18,6 +19,7 @@ export type EditorDocumento = {
   selecionar: (indice: number) => void;
   mover: (indice: number, x: number, y: number) => void;
   redimensionar: (indice: number, w: number) => void;
+  girar: (indice: number, rotacao: number) => void;
 };
 
 // Tudo é posicionado em % da página e as fontes usam cqw (% da largura do
@@ -25,10 +27,12 @@ export type EditorDocumento = {
 export function PropostaDocumento({
   template,
   dados,
+  valores,
   editor,
 }: {
   template: PropostaTemplate;
   dados: DadosProposta;
+  valores?: ValoresManuais;
   editor?: EditorDocumento;
 }) {
   const largura = Number(template.largura_mm);
@@ -56,6 +60,7 @@ export function PropostaDocumento({
                   indice={posicao}
                   campo={campo}
                   dados={dados}
+                  valores={valores}
                   editor={editor}
                 />
               ) : null
@@ -68,6 +73,8 @@ export function PropostaDocumento({
 }
 
 function estiloBase(campo: Campo) {
+  const rotacao = campo.rotacao ?? 0;
+
   return {
     left: `${campo.x}%`,
     top: `${campo.y}%`,
@@ -77,6 +84,9 @@ function estiloBase(campo: Campo) {
     color: campo.cor ?? "#1b2a4a",
     fontWeight: campo.peso ?? 400,
     textAlign: campo.align ?? "left",
+    // A âncora fica no canto declarado em x/y, então girar não move o campo.
+    transform: rotacao ? `rotate(${rotacao}deg)` : undefined,
+    transformOrigin: "top left",
   } as const;
 }
 
@@ -88,7 +98,16 @@ function arredondarLargura(valor: number) {
   return Math.min(120, Math.max(1, Math.round(valor * 10) / 10));
 }
 
-function useArrasto(indice: number, editor?: EditorDocumento) {
+function arredondarAngulo(valor: number) {
+  const normalizado = ((valor + 180) % 360 + 360) % 360 - 180;
+  return Math.round(normalizado * 10) / 10;
+}
+
+// Posição e largura virêm do deslocamento do ponteiro, não do rect: girar
+// o campo muda a bounding box e faria o arraste saltar.
+function useArrasto(indice: number, campo: Campo, editor?: EditorDocumento) {
+  const { x, y } = campo;
+
   return useCallback(
     (evento: React.PointerEvent<HTMLDivElement>) => {
       if (!editor) return;
@@ -96,21 +115,17 @@ function useArrasto(indice: number, editor?: EditorDocumento) {
       evento.preventDefault();
       editor.selecionar(indice);
 
-      const alvo = evento.currentTarget;
-      const pagina = alvo.parentElement;
+      const pagina = evento.currentTarget.parentElement;
       if (!pagina) return;
 
       const areaPagina = pagina.getBoundingClientRect();
-      const areaCampo = alvo.getBoundingClientRect();
-      const deslocX = evento.clientX - areaCampo.left;
-      const deslocY = evento.clientY - areaCampo.top;
+      const partidaX = evento.clientX;
+      const partidaY = evento.clientY;
 
       const mover = (e: PointerEvent) => {
-        const x =
-          ((e.clientX - deslocX - areaPagina.left) / areaPagina.width) * 100;
-        const y =
-          ((e.clientY - deslocY - areaPagina.top) / areaPagina.height) * 100;
-        editor.mover(indice, arredondar(x), arredondar(y));
+        const novoX = x + ((e.clientX - partidaX) / areaPagina.width) * 100;
+        const novoY = y + ((e.clientY - partidaY) / areaPagina.height) * 100;
+        editor.mover(indice, arredondar(novoX), arredondar(novoY));
       };
 
       const soltar = () => {
@@ -121,11 +136,17 @@ function useArrasto(indice: number, editor?: EditorDocumento) {
       window.addEventListener("pointermove", mover);
       window.addEventListener("pointerup", soltar);
     },
-    [editor, indice]
+    [editor, indice, x, y]
   );
 }
 
-function useRedimensionamento(indice: number, editor?: EditorDocumento) {
+function useRedimensionamento(
+  indice: number,
+  campo: Campo,
+  editor?: EditorDocumento
+) {
+  const { w, rotacao } = campo;
+
   return useCallback(
     (evento: React.PointerEvent<HTMLSpanElement>) => {
       if (!editor) return;
@@ -134,16 +155,26 @@ function useRedimensionamento(indice: number, editor?: EditorDocumento) {
       evento.stopPropagation();
       editor.selecionar(indice);
 
-      const campo = evento.currentTarget.parentElement;
-      const pagina = campo?.parentElement;
-      if (!campo || !pagina) return;
+      const alvo = evento.currentTarget.parentElement;
+      const pagina = alvo?.parentElement;
+      if (!alvo || !pagina) return;
 
       const areaPagina = pagina.getBoundingClientRect();
-      const esquerda = campo.getBoundingClientRect().left;
+      const inicial = w ?? (alvo.offsetWidth / areaPagina.width) * 100;
+      const angulo = ((rotacao ?? 0) * Math.PI) / 180;
+      const partidaX = evento.clientX;
+      const partidaY = evento.clientY;
 
       const redimensionar = (e: PointerEvent) => {
-        const w = ((e.clientX - esquerda) / areaPagina.width) * 100;
-        editor.redimensionar(indice, arredondarLargura(w));
+        const deltaX = e.clientX - partidaX;
+        const deltaY = e.clientY - partidaY;
+        const projetado =
+          deltaX * Math.cos(angulo) + deltaY * Math.sin(angulo);
+
+        editor.redimensionar(
+          indice,
+          arredondarLargura(inicial + (projetado / areaPagina.width) * 100)
+        );
       };
 
       const soltar = () => {
@@ -154,7 +185,48 @@ function useRedimensionamento(indice: number, editor?: EditorDocumento) {
       window.addEventListener("pointermove", redimensionar);
       window.addEventListener("pointerup", soltar);
     },
-    [editor, indice]
+    [editor, indice, w, rotacao]
+  );
+}
+
+function useRotacao(indice: number, campo: Campo, editor?: EditorDocumento) {
+  const { x, y, rotacao } = campo;
+
+  return useCallback(
+    (evento: React.PointerEvent<HTMLSpanElement>) => {
+      if (!editor) return;
+
+      evento.preventDefault();
+      evento.stopPropagation();
+      editor.selecionar(indice);
+
+      const pagina = evento.currentTarget.parentElement?.parentElement;
+      if (!pagina) return;
+
+      const areaPagina = pagina.getBoundingClientRect();
+      const ancoraX = areaPagina.left + (x / 100) * areaPagina.width;
+      const ancoraY = areaPagina.top + (y / 100) * areaPagina.height;
+      const inicial = rotacao ?? 0;
+      const partida = Math.atan2(
+        evento.clientY - ancoraY,
+        evento.clientX - ancoraX
+      );
+
+      const girar = (e: PointerEvent) => {
+        const atual = Math.atan2(e.clientY - ancoraY, e.clientX - ancoraX);
+        const graus = inicial + ((atual - partida) * 180) / Math.PI;
+        editor.girar(indice, arredondarAngulo(graus));
+      };
+
+      const soltar = () => {
+        window.removeEventListener("pointermove", girar);
+        window.removeEventListener("pointerup", soltar);
+      };
+
+      window.addEventListener("pointermove", girar);
+      window.addEventListener("pointerup", soltar);
+    },
+    [editor, indice, x, y, rotacao]
   );
 }
 
@@ -162,20 +234,22 @@ function CampoRender({
   indice,
   campo,
   dados,
+  valores,
   editor,
 }: {
   indice: number;
   campo: Campo;
   dados: DadosProposta;
+  valores?: ValoresManuais;
   editor?: EditorDocumento;
-}) {
-  const arrastar = useArrasto(indice, editor);
-  const esticar = useRedimensionamento(indice, editor);
+}) {  const arrastar = useArrasto(indice, campo, editor);
+  const esticar = useRedimensionamento(indice, campo, editor);
+  const girar = useRotacao(indice, campo, editor);
 
   const lista = campo.tipo === "lista";
   const corpo = lista
     ? conteudoLista(campo as CampoLista, dados)
-    : conteudoTexto(campo as CampoTexto, dados);
+    : conteudoTexto(campo as CampoTexto, dados, valores);
 
   if (!corpo && !editor) return null;
 
@@ -211,12 +285,24 @@ function CampoRender({
           className="absolute top-0 -right-1 h-full w-2 cursor-ew-resize bg-brand-navy/0 hover:bg-brand-navy/40"
         />
       ) : null}
+
+      {editor?.selecionado === indice ? (
+        <span
+          onPointerDown={girar}
+          title="Arraste para inclinar"
+          className="absolute -top-4 -left-4 h-4 w-4 cursor-grab rounded-full border border-white bg-brand-navy"
+        />
+      ) : null}
     </div>
   );
 }
 
-function conteudoTexto(campo: CampoTexto, dados: DadosProposta) {
-  const texto = valorDoCampo(dados, campo);
+function conteudoTexto(
+  campo: CampoTexto,
+  dados: DadosProposta,
+  valores?: ValoresManuais
+) {
+  const texto = valorDoCampo(dados, campo, valores);
   if (!texto) return null;
 
   return <span className="whitespace-pre-wrap">{texto}</span>;
