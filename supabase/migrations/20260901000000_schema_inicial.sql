@@ -1,15 +1,15 @@
 -- =========================================================================
--- 1. LIMPEZA DO BANCO
+-- Schema inicial do ThaMu Viajando.
+--
+-- A versão original começava com DROP TABLE em passeios, transporte, voos,
+-- hoteis, cenarios e clientes — uma limpeza que fazia sentido quando o arquivo
+-- era colado à mão num banco de rascunho. Agora que o GitHub Actions aplica
+-- estas migrations em bancos com dados reais, os DROPs foram removidos: um
+-- replay acidental apagaria todos os clientes da agência.
 -- =========================================================================
-DROP TABLE IF EXISTS passeios;
-DROP TABLE IF EXISTS transporte;
-DROP TABLE IF EXISTS voos;
-DROP TABLE IF EXISTS hoteis; -- Removido do novo modelo
-DROP TABLE IF EXISTS cenarios;
-DROP TABLE IF EXISTS clientes;
 
 -- =========================================================================
--- 2. CRIAÇÃO DAS TABELAS
+-- 1. CRIAÇÃO DAS TABELAS
 -- =========================================================================
 
 CREATE TABLE IF NOT EXISTS clientes (
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS passeios (
 );
 
 -- =========================================================================
--- 3. ÍNDICES DE PERFORMANCE
+-- 2. ÍNDICES DE PERFORMANCE
 -- =========================================================================
 CREATE INDEX IF NOT EXISTS idx_cenarios_cliente_id ON cenarios(cliente_id);
 CREATE INDEX IF NOT EXISTS idx_voos_cenario_id ON voos(cenario_id); -- Restaurado

@@ -22,12 +22,32 @@ admin RPCs until those metadata keys are set by hand in Supabase Studio.
 
 ### Migrations
 
-SQL under `migrations/` is **applied by hand in the Supabase SQL Editor**, in numeric order
-per folder (`tables/schema.sql` first, then `tables/002…012`, then `auth/001…006`, then
-`storage/`). There is no migration runner and no record of what has been applied. Each file
-is written as a `-- UP --` section plus a commented-out `-- DOWN --` section; follow that
-shape for new ones, and end anything that changes the schema or a function signature with
-`NOTIFY pgrst, 'reload schema';` so PostgREST picks it up.
+SQL lives in `supabase/migrations/` and is applied by **GitHub Actions**, never by hand:
+a push to `dev` runs `supabase db push` against the development project, a merge to `main`
+runs it against production (`.github/workflows/supabase-{dev,prod}.yml`). The two projects are
+in **different Supabase accounts**, so each GitHub Environment (`dev`, `prod`) carries its own
+`SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID` and `SUPABASE_DB_PASSWORD`. There is no
+repo-level token on purpose — one would let a job authenticate as the wrong account.
+
+Create a change with `npx supabase migration new nome`; the timestamp in the filename is the
+order. Files are **forward-only** — the CLI never runs a down section — but the existing ones
+keep their `-- UP --` / commented `-- DOWN --` shape, and new ones should too, since the DOWN
+block is the documentation of how to undo a step by hand. End anything that changes the schema
+or a function signature with `NOTIFY pgrst, 'reload schema';` so PostgREST picks it up.
+
+Two rules that come from how this repo was migrated into the CLI, both worth keeping:
+
+- **Never write a destructive statement into a migration.** The original `schema.sql` opened
+  with `DROP TABLE clientes`; that block was removed when it became
+  `supabase/migrations/20260901000000_schema_inicial.sql`, because these files now run
+  unattended against databases holding the agency's real clients.
+- **Seed data for lookup tables belongs in the migration that creates them** (see the
+  `aeroportos` / `destinos` inserts in `…_proposta_dados.sql`, written `ON CONFLICT DO NOTHING`).
+  `supabase/seed.sql` only runs on a local `db reset`, so anything a remote project needs has
+  to be a migration.
+
+Docker is only needed for local CLI work (`db pull`, `db diff`, `supabase start`) — the CI jobs
+talk straight to the remote database without it.
 
 ### Environment
 
