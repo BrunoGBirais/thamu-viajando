@@ -1,0 +1,39 @@
+name: Migrations · dev
+
+# Push em dev aplica as migrations pendentes no projeto de desenvolvimento.
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "supabase/migrations/**"
+      - ".github/workflows/supabase-dev.yml"
+  workflow_dispatch:
+
+# Duas execuções ao mesmo tempo brigariam pelo histórico de migrations.
+concurrency:
+  group: migrations-dev
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+
+      # Mostra no log o que vai rodar antes de rodar.
+      - run: supabase db push --dry-run
+      - run: supabase db push
