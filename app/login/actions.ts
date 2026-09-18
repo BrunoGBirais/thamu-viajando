@@ -20,6 +20,9 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    // A mensagem ao usuário é sempre a mesma; o motivo real (URL/chave errada,
+    // rede, credencial) só aparece aqui, nos logs do servidor (Vercel → Logs).
+    console.error("login:", error.status, error.code, error.message);
     return { error: "E-mail ou senha inválidos." };
   }
 

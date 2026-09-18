@@ -20,6 +20,13 @@ via the GoTrue signup endpoint, reading URL/anon key from `.env.local`. It does 
 `role` or `company_name`, so a user created this way is a `visualizador` invisible to the
 admin RPCs until those metadata keys are set by hand in Supabase Studio.
 
+`./scripts/create-supabase-user-prod.ps1 -Email x@y.com` is the one to use against production:
+it calls the GoTrue Admin API with the service key from `.env.prod` (base URL + secret key of
+the prod project), confirms the e-mail and writes `full_name`, `role` (default `admin`) and
+`company_name` like `app/usuarios/actions.ts` does. It sends its own `User-Agent` because the
+Supabase gateway rejects `sb_secret_` keys from anything that looks like a browser, and
+PowerShell 5.1's default agent starts with `Mozilla/5.0`.
+
 ### Migrations
 
 SQL lives in `supabase/migrations/` and is applied by **GitHub Actions**, never by hand:
