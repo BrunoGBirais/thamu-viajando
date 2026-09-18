@@ -13,23 +13,20 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#0c1c3a] px-4 py-12">
-      {/* Manchas decorativas com as cores do logo */}
-      <div className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-brand-blue/25 blur-[100px]" />
-      <div className="pointer-events-none absolute -bottom-32 -right-24 h-[26rem] w-[26rem] rounded-full bg-brand-red/25 blur-[100px]" />
-      <div className="pointer-events-none absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-yellow/12 blur-[90px]" />
-
-      <div className="animate-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/12 bg-surface/95 shadow-2xl backdrop-blur-xl">
-        <div className="brand-rule h-1.5" />
-
-        <form action={action} className="flex flex-col gap-5 p-8">
+    <div className="flex flex-1 items-center justify-center bg-brand-red px-4 py-12">
+      {/* O cartão é um envelope de correio aéreo: borda listrada nas cores do pin do logo. */}
+      <div className="airmail animate-rise w-full max-w-sm rounded-3xl bg-white p-2 shadow-2xl">
+        <form
+          action={action}
+          className="flex flex-col gap-5 rounded-2xl bg-surface px-7 pb-8 pt-6"
+        >
           <Image
             src="/logo.png"
             alt="ThaMu Viajando"
             width={200}
             height={125}
             priority
-            className="mx-auto h-auto w-[170px]"
+            className="mx-auto h-auto w-[180px]"
           />
 
           <Field label="E-mail" htmlFor="login-email">
@@ -58,10 +55,10 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            variant="danger"
+            variant="primary"
             size="lg"
             disabled={pending}
-            className="w-full rounded-full"
+            className="mt-1 w-full"
           >
             {pending ? "Entrando..." : "Entrar"}
           </Button>

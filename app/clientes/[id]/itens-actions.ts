@@ -70,6 +70,8 @@ function buildVoo(formData: FormData): Payload | string {
     escalas,
     aeroporto_escala: text(formData, "aeroporto_escala", 160),
     tempo_escala: text(formData, "tempo_escala", 40),
+    tarifa: text(formData, "tarifa", 60),
+    bagagem: text(formData, "bagagem", 60),
     moeda: moeda ? moeda.toUpperCase() : null,
     valor_unitario: valorUnitario,
     pax,

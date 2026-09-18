@@ -23,7 +23,7 @@ admin RPCs until those metadata keys are set by hand in Supabase Studio.
 ### Migrations
 
 SQL under `migrations/` is **applied by hand in the Supabase SQL Editor**, in numeric order
-per folder (`tables/schema.sql` first, then `tables/002…011`, then `auth/001…006`, then
+per folder (`tables/schema.sql` first, then `tables/002…012`, then `auth/001…006`, then
 `storage/`). There is no migration runner and no record of what has been applied. Each file
 is written as a `-- UP --` section plus a commented-out `-- DOWN --` section; follow that
 shape for new ones, and end anything that changes the schema or a function signature with
@@ -104,6 +104,18 @@ them; write the unit price and quantity.
 Proposals add two tables: `proposta_templates` (page image URLs + a `campos` JSONB layout)
 and `proposta_valores` (hand-typed values, unique per `cenario_id` + `template_id`).
 
+`proposta_dados` (`migrations/tables/012`) is a **view**, one row per cenário, that turns those
+rows into the exact strings the Canva artwork shows: `"6 DIAS & 5 NOITES"`, `"5 diárias"`,
+`"1 escala (BSB 7h40)"`, `"R$ 1.930"`. It also returns `voos`, `transfers` and `passeios` as JSONB
+arrays of already-formatted items. It is `security_invoker = true`, so it respects the caller's RLS.
+Items whose `status` is `Opção` or `Cancelado` are left out of both the lists and the cost
+(`thamu_viajando_item_valido`). Prices come from `cenarios.markup_percentual` (cost per person
+× markup, rounded up to R$ 50; pix applies `desconto_pix_percentual` and rounds down to R$ 10);
+with no markup the value columns are null. Two lookup tables feed it: `aeroportos` (IATA → city,
+for "Origem: Curitiba") and `destinos` (**hotel city** → state, because the airport is often in
+another city — "Pipa" is not Natal). Missing entries degrade to the raw code / an empty state;
+add rows by hand. Prefer adding a column to the view over formatting in TypeScript.
+
 The `*-import.csv` / `*-import.sql` files at the repo root are one-off seed data from the
 agency's spreadsheets, not part of the build.
 
@@ -113,9 +125,18 @@ agency's spreadsheets, not part of the build.
 on — read it first when touching proposals.
 
 - A template is a list of page images plus `campos: Campo[]`. Each campo is either a
-  `CampoTexto` (a dotted path into `{cliente, cenario, totais}`, e.g. `cenario.destino`) or a
-  `CampoLista` (`fonte: voos|transporte|passeios` rendered through a `linha` mini-template
-  like `"{cia} · {origem} → {destino} · {total:moeda}"`).
+  `CampoTexto` (a dotted path into `{cliente, cenario, totais, proposta}`, e.g. `cenario.destino`
+  or `proposta.duracao`) or a `CampoLista` (`fonte: voos|transporte|passeios`, or
+  `proposta.voos|proposta.transfers|proposta.passeios` for the pre-formatted ones) rendered
+  through a `linha` mini-template like `"{cia} · {origem} → {destino} · {total:moeda}"`.
+- The `proposta` group is one row of the `proposta_dados` view, loaded by
+  `carregarDadosProposta()` in [lib/proposta/dados.ts](lib/proposta/dados.ts), which both
+  `/proposta/[cenarioId]` and the editor at `/templates/[id]` use.
+- **The editor only offers `proposta.*`**: `caminhosDisponiveis()` lists the view's scalar
+  columns and `FONTES` its three JSONB arrays, so a new value on a template means a new column
+  in the view, not formatting in TypeScript. The renderer still resolves `cliente.*`,
+  `cenario.*` and `totais.*` for templates saved before that, and `comAtual()` keeps such a
+  path in the dropdown so opening an old field doesn't silently repoint it.
 - **All geometry is percentages of the page**, and `fontSize` is in `cqw` (% of the page
   container's width), so a proposal renders identically on screen, in the editor and in print
   at any size. `@page` size comes from the template's `largura_mm`/`altura_mm`.
@@ -156,7 +177,7 @@ artwork, and `<img>` in the printed document must load them without a token.
   than restyling elements inline.
 - **Design tokens** are defined once in [app/globals.css](app/globals.css) — brand colors,
   surfaces, shadows, easings and animations under Tailwind v4 `@theme`, plus custom utilities
-  (`app-canvas`, `brand-rule`, `skeleton`). There is no `tailwind.config`; theme changes go in
+  (`app-canvas`, `airmail` — the red/blue airmail-envelope stripe used by the header and login — and `skeleton`). Headings use Gabarito (`font-display`), body text Hanken Grotesk. There is no `tailwind.config`; theme changes go in
   that file. Dates are formatted by slicing the `YYYY-MM-DD` string, never through `Date`,
   to avoid timezone shifts on `DATE` columns.
 - PostgREST query builders are consumed when awaited — [app/clientes/page.tsx](app/clientes/page.tsx)

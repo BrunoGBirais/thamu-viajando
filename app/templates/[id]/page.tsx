@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { carregarDadosProposta } from "@/lib/proposta/dados";
 import { montarDados, type PropostaTemplate } from "@/lib/proposta/template";
 import { EditorCampos } from "../../components/editor-campos";
 import { buttonClass } from "../../components/ui/button";
@@ -49,22 +50,15 @@ export default async function TemplateEditorPage({
     : cenarios[0]?.id;
 
   // A amostra só serve para visualizar o layout com dados reais.
-  const { data: cenario } = cenarioId
-    ? await supabase
-        .from("cenarios")
-        .select("*, clientes(*), voos(*), transporte(*), passeios(*)")
-        .eq("id", cenarioId)
-        .maybeSingle()
-    : { data: null };
-
-  const { clientes: cliente, ...dadosCenario } = cenario ?? { clientes: {} };
-  const dados = montarDados(cliente ?? {}, dadosCenario);
+  const dados =
+    (cenarioId ? await carregarDadosProposta(supabase, cenarioId) : null) ??
+    montarDados({}, {});
 
   return (
     <main className="app-canvas min-h-screen px-4 py-8">
-      <div className="animate-rise mx-auto mb-6 flex max-w-[1400px] flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-surface/85 px-5 py-3.5 shadow-lg backdrop-blur-xl">
+      <div className="mx-auto mb-6 flex max-w-[1400px] flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-5 py-3.5 shadow-lg">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-brand-navy">
+          <h1 className="text-xl font-bold text-brand-navy">
             {template.nome}
           </h1>
           <p className="text-sm text-muted">

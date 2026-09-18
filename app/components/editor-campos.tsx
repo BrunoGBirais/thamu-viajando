@@ -15,7 +15,102 @@ import {
   type PropostaTemplate,
 } from "@/lib/proposta/template";
 
-const FONTES: CampoLista["fonte"][] = ["voos", "transporte", "passeios"];
+// As fontes "proposta.*" já vêm com o texto pronto ({partida_texto}, {texto}...).
+const FONTES: { valor: CampoLista["fonte"]; rotulo: string }[] = [
+  { valor: "proposta.voos", rotulo: "Voos" },
+  { valor: "proposta.transfers", rotulo: "Transfers" },
+  { valor: "proposta.passeios", rotulo: "Passeios" },
+];
+
+// Conteúdo de cada linha da lista, para não precisar digitar "{partida_texto}".
+const CONTEUDOS: Record<string, { valor: string; rotulo: string }[]> = {
+  "proposta.voos": [
+    { valor: "{partida_texto}", rotulo: "Saída (CWB 08/12 11:40)" },
+    { valor: "{chegada_texto}", rotulo: "Chegada (NAT 08/12 23:55)" },
+    { valor: "{escala_texto}", rotulo: "Escala (1 escala (BSB 7h40))" },
+    { valor: "{companhia}", rotulo: "Companhia (LATAM)" },
+  ],
+  "proposta.transfers": [
+    { valor: "{texto}", rotulo: "Transfer (Transfer CGH → GRU)" },
+    { valor: "{fornecedor}", rotulo: "Fornecedor" },
+  ],
+  "proposta.passeios": [
+    { valor: "{texto}", rotulo: "Passeio com cidade" },
+    { valor: "{descricao}", rotulo: "Só a descrição" },
+  ],
+};
+
+const FORMATOS = [
+  { valor: "texto", rotulo: "Texto" },
+  { valor: "data", rotulo: "Data (08/12/2026)" },
+  { valor: "moeda", rotulo: "Dinheiro (R$ 1.930,00)" },
+  { valor: "numero", rotulo: "Número" },
+];
+
+const ALINHAMENTOS = [
+  { valor: "left", rotulo: "À esquerda" },
+  { valor: "center", rotulo: "Centralizado" },
+  { valor: "right", rotulo: "À direita" },
+];
+
+// Nomes das colunas da view em linguagem de agência, não de banco.
+const ROTULOS: Record<string, string> = {
+  numero_proposta: "Número da proposta",
+  duracao: "Duração (6 DIAS & 5 NOITES)",
+  dias: "Quantidade de dias",
+  noites: "Quantidade de noites",
+  destino_titulo: "Destino em maiúsculas",
+  destino_estado: "Estado do destino",
+  destino_pais: "País do destino",
+  origem_cidade: "Cidade de origem",
+  periodo: "Período da viagem",
+  pessoas: "Quantidade de pessoas",
+  transporte_tipo: "Tipo de transporte",
+  passagem: "Passagem aérea e tarifa",
+  bagagem: "Bagagem",
+  diarias: "Diárias",
+  diarias_titulo: "Diárias em maiúsculas",
+  hospedagem: "Quartos e acomodação",
+  nota: "Nota do hotel",
+  refeicao: "Refeição",
+  passeios_inclusos: "Passeios inclusos",
+  valor_credito: "Valor no crédito",
+  valor_parcela: "Valor da parcela",
+  valor_pix: "Valor no pix",
+  parcelas_texto: "Parcelas sem juros",
+  juros_texto: "Parcelas com juros",
+  desconto_pix_texto: "Desconto do pix",
+  custo_total: "Custo total (interno)",
+  custo_pessoa: "Custo por pessoa (interno)",
+  credito_pessoa: "Crédito por pessoa (número)",
+  parcela_pessoa: "Parcela por pessoa (número)",
+  pix_pessoa: "Pix por pessoa (número)",
+};
+
+// IDs não interessam a quem monta a arte.
+const OCULTOS = new Set(["cenario_id", "cliente_id"]);
+
+// Como o campo aparece na lista lateral quando não tem rótulo próprio.
+function nomeDoCampo(campo: Campo) {
+  if (campo.tipo === "lista") {
+    const fonte = FONTES.find((opcao) => opcao.valor === campo.fonte);
+    return `Lista · ${fonte?.rotulo ?? campo.fonte}`;
+  }
+
+  const caminho = (campo as CampoTexto).campo;
+  if (campo.origem === "manual") return "Digitado na proposta";
+
+  return caminho.startsWith("proposta.")
+    ? rotuloDaColuna(caminho.slice("proposta.".length))
+    : caminho;
+}
+
+function rotuloDaColuna(coluna: string) {
+  if (ROTULOS[coluna]) return ROTULOS[coluna];
+
+  const texto = coluna.replace(/_/g, " ");
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
 
 const TIPOGRAFIAS: { valor: Familia; rotulo: string }[] = [
   { valor: "open-sans", rotulo: "Open Sans" },
@@ -42,16 +137,40 @@ function chaveUnica(lista: Campo[], campo: Campo) {
   return chave;
 }
 
-// Só caminhos escalares viram campo de texto; arrays viram campo do tipo lista.
-function caminhosDisponiveis(dados: DadosProposta) {
-  const grupos = ["cliente", "cenario", "totais"] as const;
+// Só as colunas da view proposta_dados: é lá que os textos já saem prontos.
+// Cada opção mostra o valor do cenário escolhido, não o nome da coluna.
+// Caminhos escalares viram campo de texto; arrays viram campo do tipo lista.
+function opcoesDeDado(dados: DadosProposta) {
+  return Object.entries(dados.proposta ?? {})
+    .filter(
+      ([chave, valor]) =>
+        !OCULTOS.has(chave) && (!valor || typeof valor !== "object")
+    )
+    .map(([chave, valor]) => {
+      const exemplo =
+        valor === null || valor === undefined || valor === ""
+          ? ""
+          : String(valor);
+      const rotulo = rotuloDaColuna(chave);
 
-  return grupos.flatMap((grupo) =>
-    Object.entries(dados[grupo] ?? {})
-      .filter(([, valor]) => !valor || typeof valor !== "object")
-      .map(([chave]) => `${grupo}.${chave}`)
-      .sort()
-  );
+      return {
+        valor: `proposta.${chave}`,
+        rotulo: exemplo ? `${exemplo} — ${rotulo}` : `(vazio) — ${rotulo}`,
+        ordem: rotulo,
+      };
+    })
+    .sort((a, b) => a.ordem.localeCompare(b.ordem, "pt-BR"));
+}
+
+// Campos antigos apontam para cliente.*/cenario.*; mantém a opção para não
+// trocar o dado sozinho ao abrir o seletor.
+function comAtual<T extends { valor: string; rotulo: string }>(
+  opcoes: T[],
+  atual?: string
+) {
+  return atual && !opcoes.some((opcao) => opcao.valor === atual)
+    ? [{ valor: atual, rotulo: `${atual} (personalizado)` }, ...opcoes]
+    : opcoes;
 }
 
 export function EditorCampos({
@@ -74,7 +193,7 @@ export function EditorCampos({
       .catch(() => setFonteAusente(true));
   }, []);
 
-  const caminhos = caminhosDisponiveis(dados);
+  const opcoesDado = opcoesDeDado(dados);
   const atual = selecionado === null ? null : campos[selecionado] ?? null;
 
   const atualizar = (patch: Partial<CampoTexto> & Partial<CampoLista>) => {
@@ -90,7 +209,7 @@ export function EditorCampos({
     setCampos((lista) => {
       const campo: Campo = {
         tipo: "texto",
-        campo: caminhos[0] ?? "cliente.nome",
+        campo: opcoesDado[0]?.valor ?? "proposta.destino_titulo",
         origem: "dado",
         pagina: 1,
         x: 10,
@@ -108,8 +227,8 @@ export function EditorCampos({
     setCampos((lista) => {
       const campo: Campo = {
         tipo: "lista",
-        fonte: "voos",
-        linha: "{origem} → {destino} · {total:moeda}",
+        fonte: "proposta.voos",
+        linha: "{partida_texto}",
         origem: "dado",
         pagina: 1,
         x: 10,
@@ -177,7 +296,7 @@ export function EditorCampos({
         />
       </div>
 
-      <aside className="w-full shrink-0 space-y-4 rounded-2xl border border-line bg-surface p-4 shadow-lg lg:w-80">
+      <aside className="w-full shrink-0 space-y-4 self-start rounded-2xl border border-line bg-surface p-4 shadow-sm lg:sticky lg:top-4 lg:w-80">
         <div className="flex gap-2">
           <BotaoSecundario onClick={adicionarTexto}>+ Texto</BotaoSecundario>
           <BotaoSecundario onClick={adicionarLista}>+ Lista</BotaoSecundario>
@@ -189,16 +308,13 @@ export function EditorCampos({
               <button
                 type="button"
                 onClick={() => setSelecionado(indice)}
-                className={`w-full truncate rounded-lg px-2.5 py-1.5 text-left transition ${
+                className={`w-full truncate rounded-md border-l-4 px-2.5 py-1.5 text-left transition-colors ${
                   selecionado === indice
-                    ? "bg-brand-navy font-medium text-white shadow-2xs"
-                    : "text-muted hover:bg-surface-sunken hover:text-foreground"
+                    ? "border-brand-yellow bg-brand-navy font-semibold text-white"
+                    : "border-transparent text-muted hover:bg-surface-sunken hover:text-foreground"
                 }`}
               >
-                {campo.rotulo ||
-                  (campo.tipo === "lista"
-                    ? `lista · ${campo.fonte}`
-                    : (campo as CampoTexto).campo)}
+                {campo.rotulo || nomeDoCampo(campo)}
               </button>
             </li>
           ))}
@@ -230,7 +346,7 @@ export function EditorCampos({
                 className={`${ENTRADA} font-mono`}
               />
             </Grupo>
-            <p className="-mt-2 text-xs text-subtle">
+            <p className="-mt-2 text-[0.8125rem] text-muted">
               Identifica o campo nas propostas salvas. Mudar quebra o histórico.
             </p>
 
@@ -273,21 +389,22 @@ export function EditorCampos({
             {atual.tipo === "lista" ? (
               <>
                 <Selecao
-                  rotulo="Fonte"
+                  rotulo="Lista"
                   valor={atual.fonte}
-                  opcoes={FONTES}
+                  opcoes={comAtual([...FONTES], atual.fonte)}
                   onChange={(valor) =>
-                    atualizar({ fonte: valor as CampoLista["fonte"] })
+                    atualizar({
+                      fonte: valor as CampoLista["fonte"],
+                      linha: CONTEUDOS[valor]?.[0]?.valor ?? "{texto}",
+                    })
                   }
                 />
-                <Grupo rotulo="Linha">
-                  <input
-                    type="text"
-                    value={atual.linha}
-                    onChange={(e) => atualizar({ linha: e.target.value })}
-                    className={ENTRADA}
-                  />
-                </Grupo>
+                <Selecao
+                  rotulo="Conteúdo da linha"
+                  valor={atual.linha}
+                  opcoes={comAtual(CONTEUDOS[atual.fonte] ?? [], atual.linha)}
+                  onChange={(valor) => atualizar({ linha: valor })}
+                />
                 <NumeroInput
                   rotulo="Espaçamento"
                   valor={atual.espacamento ?? 1.6}
@@ -304,21 +421,21 @@ export function EditorCampos({
             ) : (
               <>
                 {atual.origem === "manual" ? (
-                  <p className="rounded-lg bg-surface-sunken px-2.5 py-2 text-xs text-muted">
+                  <p className="rounded-lg bg-surface-sunken px-2.5 py-2 text-[0.8125rem] text-muted">
                     O texto é digitado ao criar a proposta.
                   </p>
                 ) : (
                   <Selecao
-                    rotulo="Dado"
+                    rotulo="Dado do cenário"
                     valor={(atual as CampoTexto).campo}
-                    opcoes={caminhos}
+                    opcoes={comAtual(opcoesDado, (atual as CampoTexto).campo)}
                     onChange={(valor) => atualizar({ campo: valor })}
                   />
                 )}
                 <Selecao
                   rotulo="Formato"
                   valor={(atual as CampoTexto).formato ?? "texto"}
-                  opcoes={["texto", "data", "moeda", "numero"]}
+                  opcoes={FORMATOS}
                   onChange={(valor) =>
                     atualizar({ formato: valor as CampoTexto["formato"] })
                   }
@@ -388,7 +505,7 @@ export function EditorCampos({
             </Grupo>
 
             {atual.familia === "childos" && fonteAusente ? (
-              <p className="text-xs text-amber-700">
+              <p className="text-[0.8125rem] font-semibold text-[#6b5000]">
                 Childos Arabic não carregou. Recarregue a página; se persistir,
                 confira o arquivo em public/fonts.
               </p>
@@ -400,13 +517,13 @@ export function EditorCampos({
                   type="color"
                   value={atual.cor ?? "#1b2a4a"}
                   onChange={(e) => atualizar({ cor: e.target.value })}
-                  className="h-9 w-full cursor-pointer rounded-lg border border-line bg-surface"
+                  className="h-9 w-full cursor-pointer rounded-lg border border-line-strong bg-surface"
                 />
               </Grupo>
               <Selecao
                 rotulo="Alinhamento"
                 valor={atual.align ?? "left"}
-                opcoes={["left", "center", "right"]}
+                opcoes={ALINHAMENTOS}
                 onChange={(valor) =>
                   atualizar({ align: valor as CampoTexto["align"] })
                 }
@@ -416,7 +533,7 @@ export function EditorCampos({
             <button
               type="button"
               onClick={remover}
-              className="text-sm font-semibold text-brand-red transition hover:underline"
+              className="text-sm font-semibold text-[#b3241c] underline-offset-4 transition hover:underline"
             >
               Remover campo
             </button>
@@ -432,7 +549,7 @@ export function EditorCampos({
             type="button"
             onClick={salvar}
             disabled={salvando}
-            className="w-full rounded-xl bg-brand-navy px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-navy/90 hover:shadow-md active:scale-[0.98] disabled:opacity-45"
+            className="h-10 w-full rounded-lg bg-brand-navy px-4 text-sm font-semibold text-white transition-colors hover:bg-[#244680] active:translate-y-px disabled:opacity-45"
           >
             {salvando ? "Salvando…" : "Salvar layout"}
           </button>
@@ -446,7 +563,7 @@ export function EditorCampos({
 }
 
 const ENTRADA =
-  "w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-foreground transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none";
+  "w-full rounded-lg border border-line-strong bg-surface px-2.5 py-1.5 text-sm text-foreground transition-colors placeholder:text-subtle hover:border-[#9fb0c6] focus:border-brand-navy focus:shadow-[0_0_0_3px_rgb(41_169_224/0.28)] focus-visible:outline-none";
 
 function Grupo({
   rotulo,
@@ -457,7 +574,7 @@ function Grupo({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-subtle">
+      <span className="mb-1 block text-[0.8125rem] font-semibold text-foreground">
         {rotulo}
       </span>
       {children}
@@ -497,7 +614,7 @@ function Selecao({
 }: {
   rotulo: string;
   valor: string;
-  opcoes: readonly string[];
+  opcoes: readonly { valor: string; rotulo: string }[];
   onChange: (valor: string) => void;
 }) {
   return (
@@ -508,8 +625,8 @@ function Selecao({
         className={ENTRADA}
       >
         {opcoes.map((opcao) => (
-          <option key={opcao} value={opcao}>
-            {opcao}
+          <option key={opcao.valor} value={opcao.valor}>
+            {opcao.rotulo}
           </option>
         ))}
       </select>
@@ -528,7 +645,7 @@ function BotaoSecundario({
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold text-brand-navy transition duration-200 ease-out-expo hover:border-brand-blue/50 hover:bg-surface-muted active:scale-[0.98]"
+      className="h-9 flex-1 rounded-lg border border-line-strong bg-surface px-3 text-sm font-semibold text-brand-navy transition-colors hover:border-brand-navy/40 hover:bg-surface-muted active:translate-y-px"
     >
       {children}
     </button>

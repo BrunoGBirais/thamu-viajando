@@ -2,10 +2,9 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export const controlClass =
-  "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-foreground shadow-2xs transition duration-200 placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-muted";
+  "w-full rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-[0.9375rem] text-foreground transition-colors duration-150 placeholder:text-subtle hover:border-[#9fb0c6] focus:border-brand-navy focus:shadow-[0_0_0_3px_rgb(41_169_224/0.28)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-muted";
 
-export const labelClass =
-  "mb-1.5 block text-xs font-semibold tracking-wide text-muted";
+export const labelClass = "mb-1.5 block text-sm font-semibold text-foreground";
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
   return <label className={cn(labelClass, className)} {...props} />;
@@ -40,7 +39,7 @@ export function Select({ className, children, ...props }: ComponentProps<"select
         strokeWidth="2"
         strokeLinecap="round"
         aria-hidden="true"
-        className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-subtle"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-brand-navy"
       >
         <path d="M6 9l6 6 6-6" />
       </svg>
@@ -55,7 +54,7 @@ export function Field({
   className,
   children,
 }: {
-  label: string;
+  label: ReactNode;
   hint?: ReactNode;
   htmlFor?: string;
   className?: string;
@@ -65,7 +64,7 @@ export function Field({
     <div className={className}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {hint ? <p className="mt-1.5 text-xs text-subtle">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-[0.8125rem] text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -84,10 +83,10 @@ export function FormFeedback({
     <p
       role="status"
       className={cn(
-        "animate-rise flex items-start gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium",
+        "animate-pop flex items-start gap-2 rounded-lg border px-3.5 py-2.5 text-sm font-semibold",
         error
-          ? "bg-brand-red/8 text-brand-red"
-          : "bg-emerald-500/10 text-emerald-700"
+          ? "border-brand-red/30 bg-brand-red/6 text-[#b3241c]"
+          : "border-emerald-600/25 bg-emerald-500/8 text-emerald-800"
       )}
     >
       <svg

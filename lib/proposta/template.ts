@@ -37,9 +37,18 @@ export type CampoTexto = Base & {
   sufixo?: string;
 };
 
+// As fontes "proposta.*" vêm da view proposta_dados, já com os textos prontos.
+export type FonteLista =
+  | "voos"
+  | "transporte"
+  | "passeios"
+  | "proposta.voos"
+  | "proposta.transfers"
+  | "proposta.passeios";
+
 export type CampoLista = Base & {
   tipo: "lista";
-  fonte: "voos" | "transporte" | "passeios";
+  fonte: FonteLista;
   linha: string;
   espacamento?: number;
   maxItens?: number;
@@ -62,6 +71,8 @@ export type DadosProposta = {
   cliente: Record<string, unknown>;
   cenario: Record<string, unknown>;
   totais: Record<string, number>;
+  // Uma linha da view proposta_dados: textos já formatados como a arte os mostra.
+  proposta: Record<string, unknown>;
 };
 
 // Texto digitado na criação da proposta, indexado pela chave do campo.
@@ -98,6 +109,14 @@ export function camposManuais(campos: Campo[]): CampoTexto[] {
   );
 }
 
+// Na criação da proposta todo texto pode ser corrigido ou apagado antes de
+// imprimir; só as listas continuam automáticas.
+export function camposEditaveis(campos: Campo[]): CampoTexto[] {
+  return campos.filter(
+    (campo): campo is CampoTexto => campo.tipo !== "lista"
+  );
+}
+
 const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -118,7 +137,8 @@ function somar(itens: unknown, coluna: string) {
 
 export function montarDados(
   cliente: Record<string, unknown>,
-  cenario: Record<string, unknown>
+  cenario: Record<string, unknown>,
+  proposta: Record<string, unknown> = {}
 ): DadosProposta {
   const hotel = numero(cenario.hotel_valor_total);
   const voos = somar(cenario.voos, "total");
@@ -128,6 +148,7 @@ export function montarDados(
   return {
     cliente,
     cenario,
+    proposta,
     totais: {
       hotel,
       voos,
@@ -172,18 +193,30 @@ function buscar(origem: unknown, caminho: string): unknown {
     );
 }
 
+// Valor automático do campo, sem o que foi digitado na criação da proposta.
+export function valorCalculado(dados: DadosProposta, campo: CampoTexto) {
+  if (campo.origem === "manual") return "";
+
+  const valor = formatar(buscar(dados, campo.campo), campo.formato);
+  return valor === "" ? "" : `${campo.prefixo ?? ""}${valor}${campo.sufixo ?? ""}`;
+}
+
 export function valorDoCampo(
   dados: DadosProposta,
   campo: CampoTexto,
   valores?: ValoresManuais
 ) {
-  const bruto =
-    campo.origem === "manual"
-      ? valores?.[chaveDoCampo(campo)] ?? ""
-      : buscar(dados, campo.campo);
+  const chave = chaveDoCampo(campo);
 
-  const valor = formatar(bruto, campo.formato);
-  return valor === "" ? "" : `${campo.prefixo ?? ""}${valor}${campo.sufixo ?? ""}`;
+  // Chave presente = texto escrito à mão, inclusive vazio para esconder o campo.
+  if (valores && chave in valores) {
+    const texto = valores[chave];
+    return texto === ""
+      ? ""
+      : `${campo.prefixo ?? ""}${texto}${campo.sufixo ?? ""}`;
+  }
+
+  return valorCalculado(dados, campo);
 }
 
 // Substitui "{coluna}" ou "{coluna:moeda}" pelos valores do item.
@@ -199,7 +232,11 @@ export function renderLinha(
 }
 
 export function itensDaLista(dados: DadosProposta, campo: CampoLista) {
-  const itens = dados.cenario[campo.fonte];
+  // "proposta.voos" é um caminho; "voos" continua vindo do cenário.
+  const itens = campo.fonte.includes(".")
+    ? buscar(dados, campo.fonte)
+    : dados.cenario[campo.fonte];
+
   if (!Array.isArray(itens)) return [];
 
   const lista = itens as Record<string, unknown>[];

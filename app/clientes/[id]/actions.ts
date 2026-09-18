@@ -83,8 +83,13 @@ export type CenarioFormState = { error?: string; success?: string } | undefined;
 
 type CenarioInput = {
   destino: string;
-  dataInicio: string;
-  dataFim: string;
+  data_inicio: string;
+  data_fim: string;
+  hotel_acomodacao: string | null;
+  markup_percentual: number | null;
+  desconto_pix_percentual: number;
+  parcelas_sem_juros: number;
+  parcelas_com_juros: number;
 };
 
 async function requireSession() {
@@ -102,6 +107,9 @@ function readCenario(formData: FormData): CenarioInput | string {
   const destino = text(formData, "destino", 120);
   const dataInicio = text(formData, "data_inicio", 10);
   const dataFim = text(formData, "data_fim", 10);
+  const descontoPix = decimal(formData, "desconto_pix_percentual") ?? 8;
+  const semJuros = integer(formData, "parcelas_sem_juros") ?? 6;
+  const comJuros = integer(formData, "parcelas_com_juros") ?? 12;
 
   if (!destino || !dataInicio || !dataFim) {
     return "Preencha destino, início e fim.";
@@ -109,8 +117,23 @@ function readCenario(formData: FormData): CenarioInput | string {
   if (dataFim < dataInicio) {
     return "A data final não pode ser anterior à inicial.";
   }
+  if (descontoPix >= 100) {
+    return "O desconto do pix precisa ser menor que 100%.";
+  }
+  if (semJuros < 1 || comJuros < 1) {
+    return "O número de parcelas precisa ser no mínimo 1.";
+  }
 
-  return { destino, dataInicio, dataFim };
+  return {
+    destino,
+    data_inicio: dataInicio,
+    data_fim: dataFim,
+    hotel_acomodacao: text(formData, "hotel_acomodacao", 160),
+    markup_percentual: decimal(formData, "markup_percentual"),
+    desconto_pix_percentual: descontoPix,
+    parcelas_sem_juros: semJuros,
+    parcelas_com_juros: comJuros,
+  };
 }
 
 export async function createCenario(
@@ -130,9 +153,7 @@ export async function createCenario(
 
   const { error } = await supabase.from("cenarios").insert({
     cliente_id: clienteId,
-    destino: input.destino,
-    data_inicio: input.dataInicio,
-    data_fim: input.dataFim,
+    ...input,
   });
 
   if (error) {
@@ -165,14 +186,7 @@ export async function updateCenario(
     return { error: "Cenário não encontrado." };
   }
 
-  const { error } = await supabase
-    .from("cenarios")
-    .update({
-      destino: input.destino,
-      data_inicio: input.dataInicio,
-      data_fim: input.dataFim,
-    })
-    .eq("id", id);
+  const { error } = await supabase.from("cenarios").update(input).eq("id", id);
 
   if (error) {
     console.error("updateCenario:", error.message);

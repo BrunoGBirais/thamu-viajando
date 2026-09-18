@@ -4,24 +4,36 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
-  camposManuais,
+  camposEditaveis,
   chaveDoCampo,
   type Campo,
   type ValoresManuais,
 } from "@/lib/proposta/template";
 
+// O wizard manda só os campos que o usuário mexeu, em JSON. Chave ausente =
+// valor automático; chave com texto vazio = campo apagado de propósito.
 // O template manda no que pode ser gravado: chaves fora dele são descartadas.
 function valoresDoForm(campos: Campo[], formData: FormData): ValoresManuais {
+  const bruto = formData.get("valores");
+  let enviados: Record<string, unknown> = {};
+
+  try {
+    const json = typeof bruto === "string" ? JSON.parse(bruto) : null;
+    if (json && typeof json === "object" && !Array.isArray(json)) {
+      enviados = json as Record<string, unknown>;
+    }
+  } catch {
+    enviados = {};
+  }
+
   const valores: ValoresManuais = {};
 
-  for (const campo of camposManuais(campos)) {
+  for (const campo of camposEditaveis(campos)) {
     const chave = chaveDoCampo(campo);
-    const bruto = formData.get(`campo_${chave}`);
-    const texto = typeof bruto === "string" ? bruto.trim() : "";
+    if (!(chave in enviados)) continue;
 
-    if (texto) {
-      valores[chave] = texto.slice(0, campo.maxCaracteres ?? 500);
-    }
+    const texto = typeof enviados[chave] === "string" ? enviados[chave] : "";
+    valores[chave] = texto.trim().slice(0, campo.maxCaracteres ?? 500);
   }
 
   return valores;

@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { Modal } from "../../components/modal";
+import { buttonClass } from "../../components/ui/button";
+import { controlClass, labelClass } from "../../components/ui/form";
 import { useToast } from "../../components/toast";
 import {
   createCenario,
@@ -33,15 +35,17 @@ export type Cenario = {
   data_inicio: string;
   data_fim: string;
   hotel_nome?: string | null;
+  hotel_acomodacao?: string | null;
+  markup_percentual?: number | string | null;
+  parcelas_sem_juros?: number | null;
+  parcelas_com_juros?: number | null;
+  desconto_pix_percentual?: number | string | null;
   voos?: ItemRecord[] | null;
   transporte?: ItemRecord[] | null;
   passeios?: ItemRecord[] | null;
 };
 
-const fieldClass =
-  "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-foreground shadow-2xs outline-none transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15";
-
-const labelClass = "mb-1 block text-xs font-medium text-muted";
+const fieldClass = controlClass;
 
 const MOEDAS: FieldOption[] = [
   { value: "BRL", label: "BRL · Real" },
@@ -135,6 +139,22 @@ const VOO_FIELDS: FieldDef[] = [
     placeholder: "2h 15min",
     span: "sm:col-span-2",
     showWhen: temEscala,
+  },
+  {
+    name: "tarifa",
+    label: "Tarifa",
+    section: "Tarifa",
+    maxLength: 60,
+    placeholder: "Tarifa Light",
+    span: "sm:col-span-2",
+  },
+  {
+    name: "bagagem",
+    label: "Bagagem",
+    section: "Tarifa",
+    maxLength: 60,
+    placeholder: "10kg",
+    span: "sm:col-span-2",
   },
   {
     name: "moeda",
@@ -433,13 +453,13 @@ function Resumo({
   if (validos.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl bg-brand-navy/5 px-4 py-3">
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-lg border-l-4 border-brand-yellow bg-surface-sunken px-4 py-3 text-brand-navy">
       {validos.map((item) => (
         <div key={item.label}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">
-            {item.label}
+          <p className="text-[0.8125rem] text-muted">{item.label}</p>
+          <p className="font-display text-lg font-bold tabular-nums">
+            {item.value}
           </p>
-          <p className="text-sm font-semibold text-brand-navy">{item.value}</p>
         </div>
       ))}
     </div>
@@ -498,7 +518,7 @@ function Feedback({ state }: { state: CenarioFormState }) {
   if (!state?.error) return null;
 
   return (
-    <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-brand-red">
+    <p className="rounded-lg border border-brand-red/30 bg-brand-red/6 px-3 py-2 text-sm font-semibold text-[#b3241c]">
       {state.error}
     </p>
   );
@@ -538,6 +558,60 @@ function CenarioFields({ cenario }: { cenario?: Cenario }) {
           className={fieldClass}
         />
       </div>
+      <div className="sm:col-span-2">
+        <label className={labelClass}>Acomodação</label>
+        <input
+          name="hotel_acomodacao"
+          maxLength={160}
+          defaultValue={cenario?.hotel_acomodacao ?? ""}
+          placeholder="1 Casal e 4 solteiros"
+          className={fieldClass}
+        />
+      </div>
+      <div>
+        <label className={labelClass}>Markup (%)</label>
+        <input
+          name="markup_percentual"
+          type="number"
+          step="0.01"
+          min="0"
+          defaultValue={cenario?.markup_percentual ?? ""}
+          placeholder="33"
+          className={fieldClass}
+        />
+      </div>
+      <div>
+        <label className={labelClass}>Desconto pix (%)</label>
+        <input
+          name="desconto_pix_percentual"
+          type="number"
+          step="0.01"
+          min="0"
+          max="99"
+          defaultValue={cenario?.desconto_pix_percentual ?? 8}
+          className={fieldClass}
+        />
+      </div>
+      <div>
+        <label className={labelClass}>Parcelas sem juros</label>
+        <input
+          name="parcelas_sem_juros"
+          type="number"
+          min="1"
+          defaultValue={cenario?.parcelas_sem_juros ?? 6}
+          className={fieldClass}
+        />
+      </div>
+      <div>
+        <label className={labelClass}>Parcelas com juros</label>
+        <input
+          name="parcelas_com_juros"
+          type="number"
+          min="1"
+          defaultValue={cenario?.parcelas_com_juros ?? 12}
+          className={fieldClass}
+        />
+      </div>
     </>
   );
 }
@@ -567,16 +641,14 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
 
   return (
     <>
-      <article className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-sm transition duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-lg">
-        <div className="h-1 bg-gradient-to-r from-brand-navy via-brand-blue to-brand-yellow" />
-
+      <article className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-xs transition-colors duration-150 hover:border-line-strong">
         <div className="flex flex-1 flex-col gap-4 p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="truncate text-base font-semibold text-brand-navy">
+              <h3 className="truncate text-xl font-bold text-brand-navy">
                 {tituloCenario(cenario)}
               </h3>
-              <p className="text-xs text-muted">
+              <p className="mt-1 text-sm tabular-nums text-muted">
                 {periodo(cenario.data_inicio, cenario.data_fim)}
               </p>
             </div>
@@ -595,7 +667,7 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 divide-x divide-line overflow-hidden rounded-lg border border-line">
             {TABS.map((tab) => {
               const total = { voos, transporte, passeios }[tab.key].length;
 
@@ -604,12 +676,12 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
                   key={tab.key}
                   type="button"
                   onClick={() => setItens(tab.key)}
-                  className="rounded-xl border border-line bg-surface-muted px-2 py-2.5 text-center transition duration-200 ease-out-expo hover:-translate-y-0.5 hover:border-brand-blue hover:bg-brand-blue/5"
+                  className="bg-surface px-2 py-2.5 text-center transition-colors duration-150 hover:bg-surface-muted"
                 >
-                  <span className="block text-lg font-semibold text-brand-navy">
+                  <span className="block font-display text-2xl font-bold tabular-nums text-brand-navy">
                     {total}
                   </span>
-                  <span className="block text-[11px] font-medium text-muted">
+                  <span className="block text-[0.8125rem] text-muted">
                     {tab.label}
                   </span>
                 </button>
@@ -620,7 +692,7 @@ function CenarioCard({ cenario }: { cenario: Cenario }) {
           <button
             type="button"
             onClick={() => setItens("voos")}
-            className="mt-auto rounded-lg bg-brand-navy px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-blue"
+            className={buttonClass("primary", "md", "mt-auto w-full")}
           >
             Gerenciar itens
           </button>
@@ -668,16 +740,17 @@ function ItensModal({
       description={periodo(cenario.data_inicio, cenario.data_fim)}
       size="lg"
     >
-      <div className="mb-4 flex gap-1 rounded-2xl bg-surface-sunken p-1">
+      <div className="mb-5 flex gap-1 border-b border-line">
         {TABS.map((item) => (
           <button
             key={item.key}
             type="button"
             onClick={() => onTabChange(item.key)}
-            className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${
+            aria-current={tab === item.key ? "true" : undefined}
+            className={`-mb-px border-b-4 px-3 pb-2.5 pt-1 text-[0.9375rem] font-semibold transition-colors ${
               tab === item.key
-                ? "bg-surface text-brand-navy shadow-sm"
-                : "text-muted hover:text-foreground"
+                ? "border-brand-yellow text-brand-navy"
+                : "border-transparent text-muted hover:border-line-strong hover:text-brand-navy"
             }`}
           >
             {item.label}
@@ -776,14 +849,14 @@ function CenarioModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
+              className={buttonClass("outline")}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-blue disabled:opacity-60"
+              className={buttonClass("primary")}
             >
               {pending ? "Salvando..." : cenario ? "Salvar" : "Criar cenário"}
             </button>
@@ -834,7 +907,7 @@ function ExcluirCenarioModal({
       </p>
 
       {itens > 0 && (
-        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <p className="mt-3 rounded-lg border border-brand-yellow/60 bg-brand-yellow/15 px-3 py-2 text-sm text-[#6b5000]">
           Este cenário tem {itens} item(ns) vinculado(s). Remova-os antes, senão
           a exclusão será recusada pelo banco.
         </p>
@@ -847,14 +920,14 @@ function ExcluirCenarioModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
+            className={buttonClass("outline")}
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-brand-red px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+            className={buttonClass("danger")}
           >
             {pending ? "Excluindo..." : "Excluir"}
           </button>
@@ -881,8 +954,8 @@ function CardIcon({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`rounded-lg p-1.5 text-subtle transition hover:bg-surface-sunken ${
-        danger ? "hover:text-brand-red" : "hover:text-brand-navy"
+      className={`rounded-lg p-2 text-muted transition-colors hover:bg-surface-sunken ${
+        danger ? "hover:text-[#b3241c]" : "hover:text-brand-navy"
       }`}
     >
       <svg
@@ -915,8 +988,8 @@ export function CenariosSection({
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-brand-navy">Cenários</h2>
-          <p className="text-sm text-muted">
+          <h2 className="text-[1.75rem] font-extrabold text-brand-navy">Cenários</h2>
+          <p className="mt-1 text-muted">
             Destinos, períodos e os itens de cada proposta.
           </p>
         </div>
@@ -924,7 +997,7 @@ export function CenariosSection({
         <button
           type="button"
           onClick={() => setCriando(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-red px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-navy"
+          className={buttonClass("primary")}
         >
           <svg
             width="14"
@@ -943,7 +1016,7 @@ export function CenariosSection({
       </div>
 
       {cenarios.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line-strong bg-surface px-4 py-10 text-center text-sm text-muted">
+        <p className="rounded-2xl border border-dashed border-line-strong bg-surface px-4 py-12 text-center text-muted">
           Nenhum cenário ainda. Crie o primeiro para montar a proposta.
         </p>
       ) : (

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { carregarDadosProposta } from "@/lib/proposta/dados";
 import type { ValoresManuais } from "@/lib/proposta/template";
 import { AppHeader } from "../components/app-header";
 import { Card, PageHeader } from "../components/ui/card";
@@ -9,7 +10,11 @@ import {
   type TemplateOpcao,
 } from "./proposta-wizard";
 
-export default async function CriarPropostaPage() {
+export default async function CriarPropostaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cenario?: string; template?: string }>;
+}) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
@@ -51,6 +56,25 @@ export default async function CriarPropostaPage() {
     ])
   );
 
+  // Voltar da proposta impressa reabre o wizard já preenchido.
+  const busca = await searchParams;
+  const cenarioAlvo = Number(busca.cenario);
+  const clienteDoCenario = clientes.find((item) =>
+    item.cenarios.some((cenario) => cenario.id === cenarioAlvo)
+  );
+  const templateAlvo = templates.find(
+    (item) => String(item.id) === busca.template
+  );
+
+  const inicial = clienteDoCenario
+    ? {
+        clienteId: String(clienteDoCenario.id),
+        cenarioId: String(cenarioAlvo),
+        templateId: templateAlvo ? String(templateAlvo.id) : "",
+        dados: await carregarDadosProposta(supabase, cenarioAlvo),
+      }
+    : undefined;
+
   return (
     <>
       <AppHeader
@@ -61,13 +85,12 @@ export default async function CriarPropostaPage() {
       <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-5xl space-y-8">
           <PageHeader
-            eyebrow="Propostas"
             title="Criar proposta"
             description="Escolha o cliente, a proposta e o template do Canva."
           />
 
           {clientesError ? (
-            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
+            <Card className="border-brand-red/30 bg-brand-red/6 p-6 font-semibold text-[#b3241c]">
               Não foi possível carregar os clientes: {clientesError.message}
             </Card>
           ) : (
@@ -75,6 +98,7 @@ export default async function CriarPropostaPage() {
               clientes={clientes}
               templates={templates}
               valoresSalvos={valoresSalvos}
+              inicial={inicial}
             />
           )}
         </div>
