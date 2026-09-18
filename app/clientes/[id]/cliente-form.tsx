@@ -2,15 +2,14 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { Modal } from "../../components/modal";
+import { buttonClass } from "../../components/ui/button";
+import { controlClass, labelClass } from "../../components/ui/form";
 import { useToast } from "../../components/toast";
 import type { Cliente } from "../clientes-table";
 import { formatTelefone } from "../telefone";
 import { updateCliente, type ClienteFormState } from "./actions";
 
-const fieldClass =
-  "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-foreground shadow-2xs transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 focus-visible:outline-none";
-
-const labelClass = "mb-1.5 block text-sm font-medium text-foreground";
+const fieldClass = controlClass;
 
 function Field({
   name,
@@ -69,15 +68,13 @@ export function ClientePainel({ cliente }: { cliente: Cliente }) {
 
   return (
     <>
-      <section className="animate-rise rounded-2xl border border-line bg-surface shadow-sm">
+      <section className="rounded-2xl border border-line bg-surface shadow-xs">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
-            Dados do cliente
-          </h2>
+          <h2 className="text-xl font-bold text-brand-navy">Dados do cliente</h2>
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-navy px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-blue hover:shadow-md active:scale-[0.98]"
+            className={buttonClass("outline", "sm")}
           >
             <svg
               width="14"
@@ -96,7 +93,7 @@ export function ClientePainel({ cliente }: { cliente: Cliente }) {
           </button>
         </header>
 
-        <dl className="grid gap-x-6 gap-y-5 px-6 py-5 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="grid gap-x-8 gap-y-5 px-6 py-6 sm:grid-cols-2 lg:grid-cols-3">
           <Info label="E-mail" value={cliente.email} />
           <Info label="Telefone" value={formatTelefone(cliente.telefone)} />
           <Info label="Perfil" value={cliente.perfil} />
@@ -153,15 +150,13 @@ function ClienteForm({
       <input type="hidden" name="id" value={cliente.id} />
 
       {state?.error && (
-        <p className="rounded-xl border border-brand-red/20 bg-brand-red/8 px-3.5 py-2.5 text-sm font-medium text-brand-red">
+        <p className="rounded-lg border border-brand-red/30 bg-brand-red/6 px-3.5 py-2.5 text-sm font-semibold text-[#b3241c]">
           {state.error}
         </p>
       )}
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
-          Contato
-        </h3>
+        <h3 className="text-lg font-bold text-brand-navy">Contato</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             name="nome"
@@ -188,9 +183,7 @@ function ClienteForm({
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
-          Viagem
-        </h3>
+        <h3 className="text-lg font-bold text-brand-navy">Viagem</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field
             name="periodo_para_viajar"
@@ -223,9 +216,7 @@ function ClienteForm({
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-subtle">
-          Negociação
-        </h3>
+        <h3 className="text-lg font-bold text-brand-navy">Negociação</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             name="perfil"
@@ -260,14 +251,14 @@ function ClienteForm({
         <button
           type="button"
           onClick={onSaved}
-          className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-surface-sunken hover:text-foreground"
+          className={buttonClass("outline")}
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-brand-red px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 ease-out-expo hover:bg-brand-navy hover:shadow-md active:scale-[0.98] disabled:opacity-45"
+          className={buttonClass("primary")}
         >
           {pending ? "Salvando..." : "Salvar alterações"}
         </button>
@@ -279,10 +270,8 @@ function ClienteForm({
 function Info({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-subtle">
-        {label}
-      </dt>
-      <dd className="mt-1 text-sm font-medium text-foreground">
+      <dt className="text-sm text-muted">{label}</dt>
+      <dd className="mt-0.5 font-semibold text-foreground">
         {value || "—"}
       </dd>
     </div>

@@ -33,9 +33,8 @@ export function TemplatesManager({ templates }: { templates: TemplateRow[] }) {
   const [excluindo, setExcluindo] = useState<TemplateRow | null>(null);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
-        eyebrow="Biblioteca"
         title="Templates"
         description="Modelos de proposta e a posição de cada campo."
         actions={
@@ -67,37 +66,33 @@ export function TemplatesManager({ templates }: { templates: TemplateRow[] }) {
         />
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template, indice) => (
-            <li
-              key={template.id}
-              className="animate-rise"
-              style={{ animationDelay: `${indice * 50}ms` }}
-            >
+          {templates.map((template) => (
+            <li key={template.id}>
               <Card hover className="group h-full overflow-hidden">
                 <Link
                   href={`/templates/${template.id}`}
-                  className="relative block aspect-[3/4] overflow-hidden bg-surface-sunken"
+                  className="relative block aspect-[3/4] overflow-hidden border-b border-line bg-surface-sunken"
                 >
                   <Image
                     src={template.paginas[0]}
                     alt=""
                     fill
                     sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-contain transition-transform duration-500 ease-out-expo group-hover:scale-105"
+                    className="object-contain p-3 transition-transform duration-300 ease-out-expo group-hover:scale-[1.02]"
                   />
                 </Link>
 
                 <div className="space-y-3 p-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="truncate font-semibold text-brand-navy">
+                      <p className="truncate font-display text-lg font-bold text-brand-navy">
                         {template.nome}
                       </p>
                       {template.ativo ? null : (
                         <Badge tone="neutral">inativo</Badge>
                       )}
                     </div>
-                    <p className="mt-0.5 text-xs text-subtle">
+                    <p className="mt-0.5 text-[0.8125rem] tabular-nums text-muted">
                       {template.paginas.length}{" "}
                       {template.paginas.length === 1 ? "página" : "páginas"} ·{" "}
                       {template.totalCampos}{" "}
@@ -123,7 +118,7 @@ export function TemplatesManager({ templates }: { templates: TemplateRow[] }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => setExcluindo(template)}
-                      className="text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
+                      className="text-[#b3241c] hover:bg-brand-red/6 hover:text-[#b3241c]"
                     >
                       Excluir
                     </Button>
@@ -270,7 +265,7 @@ function SeletorPaginas({
       label="Páginas (imagens exportadas do Canva)"
       htmlFor="paginas"
       hint={
-        <span className={estado.erro ? "text-brand-red" : undefined}>
+        <span className={estado.erro ? "font-semibold text-[#b3241c]" : undefined}>
           {estado.erro ??
             (estado.enviando
               ? "Enviando imagens..."
@@ -291,7 +286,7 @@ function SeletorPaginas({
         required={obrigatorio && estado.urls.length === 0}
         accept="image/png,image/jpeg,image/webp"
         onChange={aoSelecionar}
-        className="w-full cursor-pointer rounded-xl border border-dashed border-line-strong bg-surface-muted p-3 text-sm text-muted transition hover:border-brand-blue file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-brand-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+        className="w-full cursor-pointer rounded-lg border border-dashed border-line-strong bg-surface-muted p-3 text-sm text-muted transition-colors hover:border-brand-navy/50 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-brand-navy file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
       />
       {estado.urls.map((url) => (
         <input key={url} type="hidden" name="paginas_url" value={url} />
@@ -386,12 +381,12 @@ function DialogoEditar({
           />
         </Field>
 
-        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-brand-navy/40">
           <input
             type="checkbox"
             name="ativo"
             defaultChecked={template.ativo}
-            className="h-4 w-4 rounded-md border-line-strong accent-brand-navy"
+            className="h-4 w-4 rounded border-line-strong accent-brand-navy"
           />
           Disponível na criação de propostas
         </label>
@@ -401,7 +396,7 @@ function DialogoEditar({
           estado={paginas}
           onEstado={setPaginas}
         />
-        <p className="text-xs text-subtle">
+        <p className="text-[0.8125rem] text-muted">
           Enviar novas imagens substitui todas as páginas atuais.
         </p>
 
@@ -437,7 +432,7 @@ function DialogoExcluir({
         <FormFeedback error={state?.error} />
         <input type="hidden" name="id" value={template.id} />
 
-        <p className="text-sm text-muted">
+        <p className="text-muted">
           Excluir{" "}
           <strong className="font-semibold text-brand-navy">
             {template.nome}

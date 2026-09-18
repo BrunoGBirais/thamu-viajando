@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 import { useToast } from "../../components/toast";
+import { buttonClass } from "../../components/ui/button";
+import { controlClass } from "../../components/ui/form";
 import type { ItemFormState } from "./itens-actions";
 
 export type ItemRecord = {
@@ -56,16 +58,15 @@ type ItemAction = (
   formData: FormData
 ) => Promise<ItemFormState>;
 
-const fieldClass =
-  "w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-foreground shadow-2xs outline-none transition placeholder:text-subtle hover:border-line-strong focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15";
+const fieldClass = `${controlClass} py-2`;
 
-const labelClass = "mb-1.5 block text-[11px] font-medium text-muted";
+const labelClass = "mb-1 block text-[0.8125rem] font-semibold text-foreground";
 
 function Feedback({ state }: { state: ItemFormState }) {
   if (!state?.error) return null;
 
   return (
-    <p className="rounded-lg bg-red-50 px-2.5 py-1.5 text-[11px] text-brand-red">
+    <p className="rounded-lg border border-brand-red/30 bg-brand-red/6 px-2.5 py-1.5 text-[0.8125rem] font-semibold text-[#b3241c]">
       {state.error}
     </p>
   );
@@ -131,10 +132,10 @@ function Field({
 
     return (
       <label
-        className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2 text-sm transition ${
+        className={`flex cursor-pointer items-center gap-2.5 self-end rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
           marcado
-            ? "border-brand-blue bg-brand-blue/5 font-medium text-brand-navy"
-            : "border-line text-muted hover:border-line-strong hover:text-foreground"
+            ? "border-brand-navy bg-brand-navy/6 text-brand-navy"
+            : "border-line-strong text-muted hover:border-[#9fb0c6] hover:text-foreground"
         } ${field.span ?? ""}`}
       >
         <input
@@ -145,7 +146,7 @@ function Field({
           onChange={(event) =>
             onChange(field.name, event.target.checked ? "1" : "")
           }
-          className="size-4 rounded-md border-line-strong accent-brand-blue"
+          className="size-4 rounded border-line-strong accent-brand-navy"
         />
         {field.label}
       </label>
@@ -163,10 +164,10 @@ function Field({
               type="button"
               aria-pressed={value === option.value}
               onClick={() => onChange(field.name, option.value)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-md border px-2.5 py-1 text-[0.8125rem] font-semibold transition-colors ${
                 value === option.value
-                  ? "bg-brand-navy text-white shadow-sm"
-                  : "bg-surface-sunken text-muted hover:bg-line hover:text-foreground"
+                  ? "border-brand-navy bg-brand-navy text-white"
+                  : "border-line-strong bg-surface text-muted hover:border-brand-navy/40 hover:text-brand-navy"
               }`}
             >
               {option.label}
@@ -272,7 +273,7 @@ function ItemForm({
       {agrupar(fields, values).map((grupo, index) => (
         <div key={grupo.title ?? index} className="space-y-2.5">
           {grupo.title && (
-            <p className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-subtle">
+            <p className="flex items-center gap-3 font-display text-[0.9375rem] font-bold text-brand-navy">
               {grupo.title}
               <span className="h-px flex-1 bg-line" />
             </p>
@@ -295,18 +296,18 @@ function ItemForm({
 
       <Feedback state={state} />
 
-      <div className="flex items-center justify-end gap-3 border-t border-line pt-3">
+      <div className="flex items-center justify-end gap-2 border-t border-line pt-3">
         <button
           type="button"
           onClick={onCancel}
-          className="text-xs font-medium text-muted transition hover:text-foreground"
+          className={buttonClass("ghost", "sm")}
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-brand-navy px-4 py-2 text-xs font-semibold text-white transition hover:bg-brand-blue disabled:opacity-60"
+          className={buttonClass("primary", "sm")}
         >
           {pending ? pendingLabel : submitLabel}
         </button>
@@ -352,10 +353,10 @@ function ItemRow({
 
   return (
     <li
-      className={`overflow-hidden rounded-xl border transition ${
+      className={`overflow-hidden rounded-xl border transition-colors ${
         expanded
-          ? "border-brand-blue/40 bg-surface shadow-sm"
-          : "border-line bg-surface hover:border-line-strong hover:shadow-sm"
+          ? "border-brand-navy/40 bg-surface"
+          : "border-line bg-surface hover:border-line-strong"
       }`}
     >
       <div className="flex items-center gap-3 px-3 py-2.5">
@@ -374,19 +375,19 @@ function ItemRow({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            className={`shrink-0 text-subtle transition-transform duration-200 ${
-              expanded ? "rotate-90 text-brand-blue" : ""
+            className={`shrink-0 text-muted transition-transform duration-200 ${
+              expanded ? "rotate-90 text-brand-navy" : ""
             }`}
           >
             <path d="m9 18 6-6-6-6" />
           </svg>
 
           <span className="min-w-0">
-            <span className="block truncate text-sm font-medium text-foreground">
+            <span className="block truncate font-semibold text-brand-navy">
               {title}
             </span>
             {meta && (
-              <span className="block truncate text-xs text-muted">
+              <span className="block truncate text-[0.8125rem] text-muted">
                 {meta}
               </span>
             )}
@@ -394,7 +395,7 @@ function ItemRow({
         </button>
 
         {badge && (
-          <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-semibold text-foreground">
+          <span className="shrink-0 font-display font-bold tabular-nums text-brand-navy">
             {badge}
           </span>
         )}
@@ -406,14 +407,14 @@ function ItemRow({
             <button
               type="submit"
               disabled={deleting}
-              className="rounded-lg bg-brand-red px-2.5 py-1 text-xs font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+              className={buttonClass("danger", "sm")}
             >
               {deleting ? "..." : "Excluir"}
             </button>
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="text-xs font-medium text-muted hover:underline"
+              className={buttonClass("ghost", "sm")}
             >
               Não
             </button>
@@ -471,8 +472,8 @@ function IconButton({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`rounded-lg p-1.5 text-subtle transition hover:bg-surface-sunken ${
-        danger ? "hover:text-brand-red" : "hover:text-brand-navy"
+      className={`rounded-lg p-2 text-muted transition-colors hover:bg-surface-sunken ${
+        danger ? "hover:text-[#b3241c]" : "hover:text-brand-navy"
       }`}
     >
       <svg
@@ -518,7 +519,7 @@ function AddItemForm({
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-line-strong py-2.5 text-xs font-semibold text-muted transition hover:border-brand-blue hover:bg-brand-blue/5 hover:text-brand-blue"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-line-strong py-3 text-sm font-semibold text-brand-navy transition-colors hover:border-brand-navy/50 hover:bg-surface-muted"
       >
         <svg
           width="14"
@@ -538,8 +539,8 @@ function AddItemForm({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-brand-blue/30 bg-surface shadow-sm">
-      <p className="border-b border-line bg-brand-blue/5 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-blue">
+    <div className="overflow-hidden rounded-xl border border-brand-navy/40 bg-surface">
+      <p className="border-b border-line bg-surface-muted px-4 py-2.5 font-display font-bold text-brand-navy">
         {addLabel}
       </p>
 
@@ -590,7 +591,7 @@ export function ItensCenario({
   return (
     <div className="space-y-2">
       {items.length === 0 ? (
-        <p className="rounded-xl bg-surface-muted px-3 py-6 text-center text-xs text-muted">
+        <p className="rounded-xl bg-surface-muted px-3 py-8 text-center text-sm text-muted">
           {emptyMessage}
         </p>
       ) : (

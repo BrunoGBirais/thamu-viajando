@@ -2,12 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "./components/app-header";
-import { PageHeader } from "./components/ui/card";
 
 const ICONE = {
   fill: "none",
   stroke: "currentColor",
-  strokeWidth: 1.6,
+  strokeWidth: 1.8,
   strokeLinecap: "round",
   strokeLinejoin: "round",
   viewBox: "0 0 24 24",
@@ -21,7 +20,6 @@ const ATALHOS = [
     href: "/criar-proposta",
     titulo: "Criar proposta",
     texto: "Monte uma proposta a partir de um template do Canva.",
-    tom: "from-brand-blue to-[#1071a0]",
     icone: (
       <svg {...ICONE}>
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8z" />
@@ -33,7 +31,6 @@ const ATALHOS = [
     href: "/clientes",
     titulo: "Clientes",
     texto: "Consulte o funil, os cenários e os itens de cada viagem.",
-    tom: "from-brand-navy to-[#0b1d3a]",
     icone: (
       <svg {...ICONE}>
         <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20" />
@@ -46,7 +43,6 @@ const ATALHOS = [
     href: "/templates",
     titulo: "Templates",
     texto: "Ajuste os campos e o layout dos modelos de proposta.",
-    tom: "from-brand-yellow to-brand-red",
     icone: (
       <svg {...ICONE}>
         <rect x="3" y="3" width="18" height="18" rx="2.5" />
@@ -80,48 +76,71 @@ export default async function Home() {
         name={metadata?.full_name}
         isAdmin={isAdmin === true}
       />
-      <main className="app-canvas flex-1 px-4 py-12 sm:px-6 sm:py-16">
-        <div className="mx-auto max-w-5xl space-y-10">
-          <PageHeader
-            eyebrow="ThaMu Viajando"
-            title={
-              primeiroNome ? `Olá, ${primeiroNome}` : "Bem-vindo de volta!"
-            }
-            description="Por onde você quer começar hoje?"
-          />
+      <main className="app-canvas flex-1 px-4 py-12 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="text-[2.75rem] font-extrabold text-brand-navy sm:text-[4rem]">
+            {primeiroNome ? `Olá, ${primeiroNome}` : "Bem-vindo de volta!"}
+          </h1>
+          <p className="mt-3 text-lg text-muted">
+            Por onde você quer começar hoje?
+          </p>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {ATALHOS.map((atalho, indice) => (
-              <Link
-                key={atalho.href}
-                href={atalho.href}
-                style={{ animationDelay: `${indice * 70}ms` }}
-                className="animate-rise group relative overflow-hidden rounded-2xl border border-line bg-surface p-6 shadow-sm transition duration-300 ease-out-expo hover:-translate-y-1 hover:border-brand-blue/40 hover:shadow-lg"
-              >
-                <span
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${atalho.tom} text-white shadow-sm transition-transform duration-300 group-hover:scale-110`}
+          {/* O primeiro atalho é o trabalho principal do dia, então ganha o navy cheio. */}
+          <nav
+            aria-label="Atalhos"
+            className="animate-rise mt-10 grid overflow-hidden rounded-2xl border border-line bg-surface shadow-sm sm:grid-cols-3"
+          >
+            {ATALHOS.map((atalho, indice) => {
+              const destaque = indice === 0;
+
+              return (
+                <Link
+                  key={atalho.href}
+                  href={atalho.href}
+                  className={`group flex flex-col gap-4 p-6 transition-colors duration-150 sm:p-7 ${
+                    destaque
+                      ? "bg-brand-navy text-white hover:bg-[#213f75]"
+                      : "border-t border-line hover:bg-surface-muted sm:border-l sm:border-t-0"
+                  }`}
                 >
-                  {atalho.icone}
-                </span>
-                <h2 className="mt-5 text-base font-semibold tracking-tight text-brand-navy">
-                  {atalho.titulo}
-                </h2>
-                <p className="mt-1.5 text-sm text-muted">{atalho.texto}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue">
-                  Abrir
-                  <svg
-                    {...ICONE}
-                    width={16}
-                    height={16}
-                    strokeWidth={2}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                      destaque
+                        ? "bg-brand-yellow text-brand-navy"
+                        : "bg-surface-sunken text-brand-navy"
+                    }`}
                   >
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </span>
-              </Link>
-            ))}
-          </div>
+                    {atalho.icone}
+                  </span>
+                  <span>
+                    <span
+                      className={`flex items-center gap-2 font-display text-xl font-bold ${
+                        destaque ? "text-white" : "text-brand-navy"
+                      }`}
+                    >
+                      {atalho.titulo}
+                      <svg
+                        {...ICONE}
+                        width={18}
+                        height={18}
+                        strokeWidth={2.2}
+                        className="transition-transform duration-150 group-hover:translate-x-0.5"
+                      >
+                        <path d="m9 6 6 6-6 6" />
+                      </svg>
+                    </span>
+                    <span
+                      className={`mt-1.5 block ${
+                        destaque ? "text-white/75" : "text-muted"
+                      }`}
+                    >
+                      {atalho.texto}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </main>
     </>

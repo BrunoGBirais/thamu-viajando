@@ -54,7 +54,7 @@ export function ClientesFilters({
   const hasFilters = Boolean(busca || perfil || etapa || orcamento);
 
   return (
-    <Card className="animate-rise p-5">
+    <Card className="p-5">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Field label="Buscar" htmlFor="busca" className="lg:col-span-2">
           <Input
@@ -120,7 +120,7 @@ export function ClientesFilters({
             setBusca("");
             router.replace(pathname);
           }}
-          className="mt-4 text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
+          className="mt-4 text-[#b3241c] hover:bg-brand-red/6 hover:text-[#b3241c]"
         >
           Limpar filtros
         </Button>

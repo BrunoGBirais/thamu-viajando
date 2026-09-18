@@ -37,7 +37,7 @@ export function ClientesPagination({
 
   return (
     <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-      <p className="text-sm text-muted">
+      <p className="text-sm tabular-nums text-muted">
         Exibindo {from}–{to} de {total}
       </p>
 
@@ -50,7 +50,7 @@ export function ClientesPagination({
         >
           Anterior
         </Button>
-        <span className="px-1 text-sm font-medium text-muted">
+        <span className="px-1 text-sm font-semibold tabular-nums text-brand-navy">
           Página {page} de {totalPages}
         </span>
         <Button

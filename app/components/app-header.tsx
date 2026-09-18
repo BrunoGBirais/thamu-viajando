@@ -129,15 +129,14 @@ export function AppHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-50 h-[var(--header-h)] border-b border-line/80 bg-surface/80 backdrop-blur-xl">
-        <div className="brand-rule h-0.5" />
-        <div className="flex h-[calc(var(--header-h)-0.125rem)] items-center gap-3 px-4 sm:px-6">
+      <header className="sticky top-0 z-50 h-[var(--header-h)] bg-surface">
+        <div className="flex h-[calc(var(--header-h)-0.375rem)] items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-label={open ? "Fechar menu" : "Abrir menu"}
             aria-expanded={open}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-brand-navy transition hover:bg-surface-sunken active:scale-95 lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-navy transition-colors hover:bg-surface-sunken lg:hidden"
           >
             <svg {...ICONE} width={22} height={22} strokeWidth={2}>
               <path d="M4 7h16M4 12h16M4 17h16" />
@@ -151,20 +150,21 @@ export function AppHeader({
               width={360}
               height={225}
               priority
-              className="h-10 w-auto transition-transform duration-300 hover:scale-105"
+              className="h-14 w-auto"
             />
           </Link>
 
           {/* Em telas largas a navegação fica no header; abaixo disso vira gaveta. */}
-          <nav className="ml-3 hidden items-center gap-1 lg:flex">
+          <nav className="ml-4 hidden h-full items-stretch gap-1 lg:flex">
             {itens.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition duration-200 ${
+                aria-current={ehAtivo(item.href) ? "page" : undefined}
+                className={`relative flex items-center gap-2 px-3 text-[0.9375rem] font-semibold transition-colors duration-150 after:absolute after:inset-x-3 after:bottom-0 after:h-1 after:rounded-t-sm after:transition-colors ${
                   ehAtivo(item.href)
-                    ? "bg-brand-navy/8 text-brand-navy"
-                    : "text-muted hover:bg-surface-sunken hover:text-brand-navy"
+                    ? "text-brand-navy after:bg-brand-yellow"
+                    : "text-muted after:bg-transparent hover:text-brand-navy hover:after:bg-line-strong"
                 }`}
               >
                 {item.icon}
@@ -179,19 +179,19 @@ export function AppHeader({
               onClick={() => setUserMenuOpen((value) => !value)}
               aria-haspopup="menu"
               aria-expanded={userMenuOpen}
-              className="flex items-center gap-2.5 rounded-full border border-transparent py-1 pl-1 pr-2.5 transition hover:border-line hover:bg-surface-muted"
+              className="flex items-center gap-2.5 rounded-lg py-1 pl-1 pr-2.5 transition-colors hover:bg-surface-sunken"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-navy text-xs font-bold text-white shadow-sm">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-navy font-display text-sm font-bold text-brand-yellow">
                 {iniciais(displayName) || "U"}
               </span>
-              <span className="hidden max-w-[12rem] truncate text-sm font-medium text-brand-navy sm:block">
+              <span className="hidden max-w-[12rem] truncate text-sm font-semibold text-brand-navy sm:block">
                 {displayName}
               </span>
               <svg
                 {...ICONE}
                 width={14}
                 height={14}
-                className={`text-subtle transition-transform duration-200 ${
+                className={`text-muted transition-transform duration-200 ${
                   userMenuOpen ? "rotate-180" : ""
                 }`}
               >
@@ -202,13 +202,13 @@ export function AppHeader({
             {userMenuOpen && (
               <div
                 role="menu"
-                className="animate-pop absolute right-0 top-full mt-2 w-64 origin-top-right overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-xl"
+                className="animate-pop absolute right-0 top-full mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-line bg-surface p-1.5 shadow-xl"
               >
                 <div className="px-3 py-2.5">
-                  <p className="truncate text-sm font-semibold text-brand-navy">
+                  <p className="truncate font-semibold text-brand-navy">
                     {displayName}
                   </p>
-                  {email && <p className="truncate text-xs text-muted">{email}</p>}
+                  {email && <p className="truncate text-sm text-muted">{email}</p>}
                 </div>
 
                 <div className="my-1 h-px bg-line" />
@@ -218,7 +218,7 @@ export function AppHeader({
                     href="/usuarios"
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-navy transition hover:bg-brand-blue/8"
+                    className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-semibold text-brand-navy transition-colors hover:bg-surface-sunken"
                   >
                     <svg {...ICONE} width={16} height={16}>
                       <circle cx="12" cy="8" r="3.5" />
@@ -232,7 +232,7 @@ export function AppHeader({
                   <button
                     type="submit"
                     role="menuitem"
-                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-brand-red transition hover:bg-brand-red/8"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-[#b3241c] transition-colors hover:bg-brand-red/6"
                   >
                     <svg {...ICONE} width={16} height={16}>
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
@@ -244,28 +244,28 @@ export function AppHeader({
             )}
           </div>
         </div>
+        {/* Borda de envelope de correio aéreo: a assinatura visual do app. */}
+        <div aria-hidden="true" className="airmail h-1.5" />
       </header>
 
       <div
         onClick={() => setOpen(false)}
         aria-hidden="true"
-        className={`fixed inset-x-0 bottom-0 top-[var(--header-h)] z-30 bg-brand-navy/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-x-0 bottom-0 top-[var(--header-h)] z-30 bg-brand-navy/40 transition-opacity duration-300 lg:hidden ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
       <aside
         aria-hidden={!open}
-        className={`fixed left-0 top-[var(--header-h)] z-40 flex h-[calc(100%-var(--header-h))] w-72 flex-col border-r border-line bg-surface shadow-2xl transition-transform duration-300 ease-out-expo lg:hidden ${
+        className={`fixed left-0 top-[var(--header-h)] z-40 flex h-[calc(100%-var(--header-h))] w-72 flex-col border-r border-line bg-surface shadow-xl transition-transform duration-300 ease-out-expo lg:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {email && (
           <div className="border-b border-line px-5 py-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-subtle">
-              Conectado como
-            </p>
-            <p className="mt-1 truncate text-sm font-semibold text-brand-navy">
+            <p className="text-sm text-muted">Conectado como</p>
+            <p className="mt-0.5 truncate font-semibold text-brand-navy">
               {email}
             </p>
           </div>
@@ -278,10 +278,11 @@ export function AppHeader({
               href={item.href}
               onClick={() => setOpen(false)}
               tabIndex={open ? 0 : -1}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+              aria-current={ehAtivo(item.href) ? "page" : undefined}
+              className={`flex items-center gap-3 rounded-lg border-l-4 px-3 py-2.5 font-semibold transition-colors ${
                 ehAtivo(item.href)
-                  ? "bg-brand-navy text-white shadow-sm"
-                  : "text-brand-navy hover:bg-brand-blue/8"
+                  ? "border-brand-yellow bg-brand-navy text-white"
+                  : "border-transparent text-brand-navy hover:bg-surface-sunken"
               }`}
             >
               {item.icon}

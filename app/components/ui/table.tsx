@@ -5,7 +5,7 @@ export function TableShell({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-line bg-surface shadow-sm",
+        "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
         className
       )}
       {...props}
@@ -28,7 +28,7 @@ export function Th({ className, ...props }: ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "border-b border-line bg-surface-muted px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-muted",
+        "border-b-2 border-brand-navy/15 bg-surface px-4 pb-2.5 pt-3.5 text-left text-[0.8125rem] font-semibold text-muted",
         className
       )}
       {...props}
@@ -40,7 +40,7 @@ export function Tr({ className, ...props }: ComponentProps<"tr">) {
   return (
     <tr
       className={cn(
-        "border-b border-line/70 transition-colors last:border-0 hover:bg-brand-blue/4",
+        "border-b border-line/80 transition-colors last:border-0 hover:bg-surface-muted",
         className
       )}
       {...props}

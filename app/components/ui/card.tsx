@@ -2,7 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export const cardClass =
-  "rounded-2xl border border-line bg-surface shadow-sm transition duration-300 ease-out-expo";
+  "rounded-2xl border border-line bg-surface shadow-xs transition-colors duration-150";
 
 export function Card({
   className,
@@ -11,11 +11,7 @@ export function Card({
 }: ComponentProps<"div"> & { hover?: boolean }) {
   return (
     <div
-      className={cn(
-        cardClass,
-        hover && "hover:-translate-y-0.5 hover:border-brand-blue/40 hover:shadow-lg",
-        className
-      )}
+      className={cn(cardClass, hover && "hover:border-line-strong", className)}
       {...props}
     />
   );
@@ -40,11 +36,9 @@ export function CardHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-sm font-semibold tracking-tight text-brand-navy">
-          {title}
-        </h2>
+        <h2 className="text-base font-bold text-brand-navy">{title}</h2>
         {description ? (
-          <p className="mt-0.5 text-xs text-muted">{description}</p>
+          <p className="mt-0.5 text-sm text-muted">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
@@ -53,29 +47,24 @@ export function CardHeader({
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   description,
   actions,
 }: {
-  eyebrow?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
-    <div className="animate-rise flex flex-wrap items-end justify-between gap-4">
+    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-line pb-6">
       <div className="min-w-0">
-        {eyebrow ? (
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-blue">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h1 className="text-3xl font-semibold tracking-tight text-brand-navy sm:text-4xl">
+        <h1 className="text-[2rem] font-extrabold text-brand-navy sm:text-[2.5rem]">
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm text-muted">{description}</p>
+          <p className="mt-2 max-w-[60ch] text-[0.9375rem] text-muted">
+            {description}
+          </p>
         ) : null}
       </div>
       {actions ? (
@@ -101,16 +90,16 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-line-strong bg-surface-muted/60 px-6 py-14 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-line-strong bg-surface px-6 py-14 text-center",
         className
       )}
     >
       {icon ? (
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
+        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-sunken text-brand-navy">
           {icon}
         </span>
       ) : null}
-      <p className="text-sm font-semibold text-brand-navy">{title}</p>
+      <p className="font-display text-lg font-bold text-brand-navy">{title}</p>
       {description ? (
         <p className="max-w-sm text-sm text-muted">{description}</p>
       ) : null}

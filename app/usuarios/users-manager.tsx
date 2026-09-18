@@ -37,9 +37,8 @@ export function UsersManager({
   const [deleting, setDeleting] = useState<UserRow | null>(null);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
-        eyebrow="Administração"
         title="Gestão de usuários"
         description={
           users.length === 1
@@ -65,7 +64,7 @@ export function UsersManager({
         }
       />
 
-      <TableShell className="animate-rise">
+      <TableShell>
         <Table className="min-w-[640px] text-left">
           <thead>
             <tr>
@@ -115,7 +114,7 @@ export function UsersManager({
                             ? "Você não pode excluir o seu próprio usuário."
                             : undefined
                         }
-                        className="text-brand-red hover:bg-brand-red/8 hover:text-brand-red"
+                        className="text-[#b3241c] hover:bg-brand-red/6 hover:text-[#b3241c]"
                       >
                         Excluir
                       </Button>
@@ -187,7 +186,7 @@ function CreateDialog({ onClose }: { onClose: () => void }) {
           />
         </Field>
 
-        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-brand-navy/40">
           <input type="checkbox" name="is_admin" className={checkboxClass} />
           Administrador
         </label>
@@ -227,7 +226,7 @@ function EditDialog({
         <input type="hidden" name="user_id" value={user.user_id} />
 
         <Field label="E-mail">
-          <p className="rounded-xl border border-line bg-surface-sunken px-3.5 py-2.5 text-sm text-muted">
+          <p className="rounded-lg border border-line bg-surface-sunken px-3 py-2.5 text-muted">
             {user.email}
           </p>
         </Field>
@@ -241,7 +240,7 @@ function EditDialog({
           />
         </Field>
 
-        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-surface-muted px-3.5 py-2.5 text-sm font-medium text-foreground transition hover:border-brand-blue/40">
+        <label className="flex w-fit cursor-pointer items-center gap-2.5 rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-brand-navy/40">
           <input
             type="checkbox"
             name="is_admin"
@@ -252,7 +251,7 @@ function EditDialog({
           Administrador
         </label>
         {isSelf && (
-          <p className="text-xs text-subtle">
+          <p className="text-[0.8125rem] text-muted">
             Você não pode alterar o seu próprio perfil de acesso.
           </p>
         )}
@@ -289,7 +288,7 @@ function DeleteDialog({
         <FormFeedback error={state?.error} />
         <input type="hidden" name="user_id" value={user.user_id} />
 
-        <p className="text-sm text-muted">
+        <p className="text-muted">
           Tem certeza que deseja excluir{" "}
           <strong className="font-semibold text-brand-navy">
             {user.full_name || user.email}

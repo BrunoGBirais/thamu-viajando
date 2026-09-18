@@ -44,7 +44,7 @@ export default async function TemplatesPage() {
       <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-6xl space-y-6">
           {error ? (
-            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
+            <Card className="border-brand-red/30 bg-brand-red/6 p-6 font-semibold text-[#b3241c]">
               Não foi possível carregar os modelos.
             </Card>
           ) : (

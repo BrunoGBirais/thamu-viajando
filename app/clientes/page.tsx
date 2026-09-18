@@ -101,9 +101,8 @@ export default async function ClientesPage({
         isAdmin={isAdmin === true}
       />
       <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
-        <div className="mx-auto max-w-6xl space-y-8">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader
-            eyebrow="Carteira"
             title="Gestão de clientes"
             description={
               totalClientes === 1
@@ -118,7 +117,7 @@ export default async function ClientesPage({
           />
 
           {error ? (
-            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
+            <Card className="border-brand-red/30 bg-brand-red/6 p-6 font-semibold text-[#b3241c]">
               Não foi possível carregar os clientes: {error.message}
             </Card>
           ) : (

@@ -15,16 +15,19 @@
   --brand-blue: #29a9e0;
   --brand-yellow: #fdc300;
 
-  /* Superfícies e texto: o app inteiro deriva daqui. */
-  --canvas: #f6f8fc;
+  /* Azul do logo escurecido para texto e foco: o original não passa contraste no branco. */
+  --brand-blue-ink: #0f6f9e;
+
+  /* Papel de carta aérea: fundo frio, superfícies brancas, linhas em azul acinzentado. */
+  --canvas: #edf2f7;
   --surface: #ffffff;
-  --surface-muted: #f8fafc;
-  --surface-sunken: #eef2f8;
-  --border: #e3e9f2;
-  --border-strong: #cbd6e6;
-  --foreground: #0d1526;
-  --muted: #64748b;
-  --subtle: #94a3b8;
+  --surface-muted: #f6f9fc;
+  --surface-sunken: #e6edf5;
+  --border: #d6dfea;
+  --border-strong: #b8c6d8;
+  --foreground: #1e2a3f;
+  --muted: #56647c;
+  --subtle: #8792a6;
 
   --background: var(--canvas);
 
@@ -47,39 +50,42 @@
   --color-brand-navy: var(--brand-navy);
   --color-brand-red: var(--brand-red);
   --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-ink: var(--brand-blue-ink);
   --color-brand-yellow: var(--brand-yellow);
 
-  --font-sans: var(--font-geist-sans);
+  /* Gabarito nos títulos (pesado e redondo como o logo), Hanken Grotesk no resto. */
+  --font-sans: var(--font-hanken);
+  --font-display: var(--font-gabarito);
   --font-mono: var(--font-geist-mono);
 }
 
 @theme {
-  /* Cantos mais generosos que o padrão do Tailwind. */
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1.125rem;
-  --radius-3xl: 1.5rem;
+  /* Cantos por hierarquia: controles 8px, painéis 14px, diálogos 18px. */
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 1.125rem;
 
-  /* Sombras em camadas e tingidas de navy: profundidade sem o cinza chapado. */
-  --shadow-2xs: 0 1px 1px oklch(0.2 0.05 260 / 0.04);
-  --shadow-xs: 0 1px 2px oklch(0.2 0.05 260 / 0.05);
-  --shadow-sm: 0 1px 2px oklch(0.2 0.05 260 / 0.04),
-    0 2px 6px -1px oklch(0.2 0.05 260 / 0.06);
-  --shadow-md: 0 1px 2px oklch(0.2 0.05 260 / 0.04),
-    0 8px 20px -6px oklch(0.2 0.05 260 / 0.1);
-  --shadow-lg: 0 2px 4px oklch(0.2 0.05 260 / 0.04),
-    0 18px 36px -12px oklch(0.2 0.05 260 / 0.14);
-  --shadow-xl: 0 4px 8px oklch(0.2 0.05 260 / 0.05),
-    0 32px 64px -20px oklch(0.2 0.05 260 / 0.2);
-  --shadow-2xl: 0 8px 16px oklch(0.2 0.05 260 / 0.06),
-    0 48px 96px -28px oklch(0.2 0.05 260 / 0.28);
+  /* Quase tudo se separa por borda; sombra de verdade só no que flutua. */
+  --shadow-2xs: 0 1px 0 oklch(0.3 0.08 260 / 0.04);
+  --shadow-xs: 0 1px 0 oklch(0.3 0.08 260 / 0.06);
+  --shadow-sm: 0 1px 0 oklch(0.3 0.08 260 / 0.06),
+    0 1px 3px oklch(0.3 0.08 260 / 0.05);
+  --shadow-md: 0 2px 4px oklch(0.3 0.08 260 / 0.06),
+    0 6px 16px -4px oklch(0.3 0.08 260 / 0.1);
+  --shadow-lg: 0 2px 4px oklch(0.3 0.08 260 / 0.06),
+    0 16px 32px -12px oklch(0.3 0.08 260 / 0.18);
+  --shadow-xl: 0 4px 8px oklch(0.3 0.08 260 / 0.06),
+    0 28px 56px -18px oklch(0.3 0.08 260 / 0.26);
+  --shadow-2xl: 0 8px 16px oklch(0.3 0.08 260 / 0.08),
+    0 40px 80px -24px oklch(0.3 0.08 260 / 0.34);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  --animate-fade-in: fade-in 220ms var(--ease-out-expo) both;
-  --animate-rise: rise 320ms var(--ease-out-expo) both;
-  --animate-pop: pop 200ms var(--ease-spring) both;
+  --animate-fade-in: fade-in 180ms var(--ease-out-expo) both;
+  --animate-rise: rise 420ms var(--ease-out-expo) both;
+  --animate-pop: pop 180ms var(--ease-out-expo) both;
   --animate-shimmer: shimmer 1.4s linear infinite;
 }
 
@@ -95,7 +101,7 @@
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(0.75rem);
   }
   to {
     opacity: 1;
@@ -106,7 +112,7 @@
 @keyframes pop {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(0.25rem) scale(0.98);
   }
   to {
     opacity: 1;
@@ -126,18 +132,34 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-gabarito), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  h1 {
+    letter-spacing: -0.025em;
+  }
 }
 
 /* Um foco só para o app inteiro, em vez de anel repetido classe a classe. */
 :focus-visible {
-  outline: 2px solid var(--brand-blue);
+  outline: 2px solid var(--brand-blue-ink);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--brand-blue) 28%, transparent);
+  background: color-mix(in oklab, var(--brand-yellow) 45%, transparent);
   color: var(--brand-navy);
 }
 
@@ -151,26 +173,16 @@ body {
 
 @utility app-canvas {
   background-color: var(--canvas);
-  background-image: radial-gradient(
-      60rem 30rem at 12% -10%,
-      color-mix(in oklab, var(--brand-blue) 14%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      50rem 28rem at 105% 0%,
-      color-mix(in oklab, var(--brand-yellow) 12%, transparent),
-      transparent
-    );
-  background-attachment: fixed;
 }
 
-/* Faixa de marca reaproveitada no topo de header, diálogos e cards. */
-@utility brand-rule {
-  background-image: linear-gradient(
-    90deg,
-    var(--brand-red),
-    var(--brand-yellow),
-    var(--brand-blue)
+/* A borda listrada de envelope de correio aéreo: o vermelho e o azul do pin do logo. */
+@utility airmail {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--brand-red) 0 0.75rem,
+    transparent 0.75rem 1.125rem,
+    var(--brand-blue) 1.125rem 1.875rem,
+    transparent 1.875rem 2.25rem
   );
 }
 

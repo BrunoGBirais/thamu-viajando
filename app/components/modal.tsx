@@ -46,7 +46,7 @@ export function Modal({
 
   return (
     <div
-      className="animate-fade-in fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-brand-navy/35 p-4 backdrop-blur-md sm:p-6"
+      className="animate-fade-in fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-[#0f2143]/55 p-4 sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -55,17 +55,15 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`animate-pop my-auto w-full ${SIZES[size]} overflow-hidden rounded-3xl border border-white/60 bg-surface shadow-2xl`}
+        className={`animate-pop my-auto w-full ${SIZES[size]} overflow-hidden rounded-3xl bg-surface shadow-2xl`}
       >
-        <div className="brand-rule h-1" />
-
-        <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
+        <header className="flex items-start justify-between gap-4 border-b border-line px-6 pb-4 pt-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-tight text-brand-navy">
+            <h2 className="text-[1.375rem] font-bold text-brand-navy">
               {title}
             </h2>
             {description && (
-              <p className="mt-1 text-sm text-muted">{description}</p>
+              <p className="mt-1 text-muted">{description}</p>
             )}
           </div>
 
@@ -73,7 +71,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="-mr-1.5 -mt-1 rounded-xl p-2 text-subtle transition hover:bg-surface-sunken hover:text-brand-navy"
+            className="-mr-2 -mt-1 rounded-lg p-2 text-muted transition-colors hover:bg-surface-sunken hover:text-brand-navy"
           >
             <svg
               width="18"

@@ -39,13 +39,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={toast.id}
             role="status"
-            className="animate-pop flex items-center gap-3 rounded-2xl border border-white/10 bg-brand-navy/92 px-4 py-3.5 text-sm font-medium text-white shadow-xl backdrop-blur-lg"
+            className="animate-pop flex items-center gap-3 rounded-xl bg-brand-navy px-4 py-3 font-semibold text-white shadow-xl"
           >
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                 toast.tone === "error"
                   ? "bg-brand-red text-white"
-                  : "bg-emerald-400 text-brand-navy"
+                  : "bg-brand-yellow text-brand-navy"
               }`}
             >
               <svg

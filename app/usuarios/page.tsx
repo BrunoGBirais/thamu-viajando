@@ -65,15 +65,15 @@ export default async function UsuariosPage() {
         <div className="mx-auto max-w-5xl">
           {isAdmin !== true ? (
             <Card className="p-10 text-center">
-              <h1 className="text-xl font-semibold tracking-tight text-brand-navy">
+              <h1 className="text-2xl font-extrabold text-brand-navy">
                 Acesso restrito
               </h1>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-muted">
                 Somente administradores podem gerenciar usuários.
               </p>
             </Card>
           ) : loadError ? (
-            <Card className="border-brand-red/25 bg-brand-red/5 p-6 text-sm font-medium text-brand-red">
+            <Card className="border-brand-red/30 bg-brand-red/6 p-6 font-semibold text-[#b3241c]">
               Não foi possível carregar os usuários: {loadError}
             </Card>
           ) : (

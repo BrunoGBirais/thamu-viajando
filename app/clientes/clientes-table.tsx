@@ -57,7 +57,7 @@ export function ClientesTable({
   emptyMessage?: string;
 }) {
   return (
-    <TableShell className="animate-rise">
+    <TableShell>
       <Table className="min-w-[900px] text-left">
         <thead>
           <tr>
@@ -86,12 +86,12 @@ export function ClientesTable({
                 <Td>
                   <Link
                     href={`/clientes/${cliente.id}`}
-                    className="font-semibold text-brand-navy transition hover:text-brand-blue"
+                    className="font-semibold text-brand-navy underline-offset-4 transition-colors hover:text-brand-blue-ink hover:underline"
                   >
                     {cliente.nome}
                   </Link>
                   {cliente.perfil && (
-                    <p className="mt-0.5 text-xs text-subtle">{cliente.perfil}</p>
+                    <p className="mt-0.5 text-[0.8125rem] text-muted">{cliente.perfil}</p>
                   )}
                 </Td>
                 <Td className="text-muted">
@@ -101,7 +101,7 @@ export function ClientesTable({
                   {cliente.periodo_para_viajar ?? "—"}
                 </Td>
                 <Td className="text-muted">{formatTravelers(cliente)}</Td>
-                <Td className="font-medium text-foreground">
+                <Td className="font-semibold tabular-nums text-foreground">
                   {formatMoney(cliente.orcamento)}
                 </Td>
                 <Td>
@@ -111,10 +111,10 @@ export function ClientesTable({
                     <span className="text-subtle">—</span>
                   )}
                 </Td>
-                <Td className="text-muted">
+                <Td className="tabular-nums text-muted">
                   {formatDate(cliente.data_ultimo_contato)}
                   {cliente.acao && (
-                    <p className="mt-0.5 text-xs text-subtle">{cliente.acao}</p>
+                    <p className="mt-0.5 text-[0.8125rem] text-subtle">{cliente.acao}</p>
                   )}
                 </Td>
               </Tr>

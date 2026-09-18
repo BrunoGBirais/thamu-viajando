@@ -61,11 +61,11 @@ export default async function ClientePage({
         isAdmin={isAdmin === true}
       />
       <main className="app-canvas flex-1 px-4 py-10 sm:px-6">
-        <div className="mx-auto max-w-5xl space-y-6">
-          <div className="animate-rise">
+        <div className="mx-auto max-w-5xl space-y-8">
+          <div className="border-b border-line pb-6">
             <Link
               href="/clientes"
-              className="inline-flex items-center gap-1 text-sm font-medium text-brand-blue transition hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-blue-ink underline-offset-4 transition-colors hover:underline"
             >
               <svg
                 width="14"
@@ -83,17 +83,17 @@ export default async function ClientePage({
               Voltar para clientes
             </Link>
 
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-tight text-brand-navy">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <h1 className="text-[2rem] font-extrabold text-brand-navy sm:text-[2.5rem]">
                 {cliente.nome}
               </h1>
               {cliente.etapa && (
-                <span className="rounded-full bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
+                <span className="rounded-md border border-brand-blue/35 bg-brand-blue/8 px-2 py-0.5 text-sm font-semibold text-brand-blue-ink">
                   {cliente.etapa}
                 </span>
               )}
               {cliente.perfil && (
-                <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium text-muted">
+                <span className="rounded-md border border-line-strong bg-surface-muted px-2 py-0.5 text-sm font-semibold text-muted">
                   {cliente.perfil}
                 </span>
               )}
