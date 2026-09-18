@@ -13,7 +13,7 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-brand-red px-4 py-12">
+    <div className="flex flex-1 items-center justify-center bg-brand-navy px-4 py-12">
       {/* O cartão é um envelope de correio aéreo: borda listrada nas cores do pin do logo. */}
       <div className="airmail animate-rise w-full max-w-sm rounded-3xl bg-white p-2 shadow-2xl">
         <form
