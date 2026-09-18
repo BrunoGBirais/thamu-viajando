@@ -21,7 +21,19 @@ ALTER TABLE voos ADD COLUMN IF NOT EXISTS total NUMERIC(12,2)
   GENERATED ALWAYS AS (valor_unitario * pax) STORED;
 
 -- partida substitui data_voo; migra o que já existe antes de remover a coluna.
-UPDATE voos SET partida = data_voo::TIMESTAMP WHERE partida IS NULL AND data_voo IS NOT NULL;
+-- Num banco criado do zero a coluna antiga nunca existiu, e o schema inicial já
+-- cria voos com partida — por isso o backfill é condicional, e o UPDATE vai em
+-- EXECUTE para o Postgres não tentar resolver data_voo quando ela não existe.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'voos' AND column_name = 'data_voo'
+  ) THEN
+    EXECUTE 'UPDATE voos SET partida = data_voo::TIMESTAMP
+              WHERE partida IS NULL AND data_voo IS NOT NULL';
+  END IF;
+END $$;
 
 ALTER TABLE voos ALTER COLUMN partida SET NOT NULL;
 ALTER TABLE voos DROP COLUMN IF EXISTS data_voo;
