@@ -45,3 +45,8 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# imagens soltas na raiz (exports do Canva, prints) — a arte de template vai para o bucket
+/*.png
+/*.jpg
+/*.jpeg
