@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseUrl } from "@/lib/supabase/env";
 import {
   chavePadrao,
   slugDeChave,
@@ -26,7 +27,7 @@ const CAMINHO_PAGINAS = "/storage/v1/object/public/propostas/templates/";
 function paginaValida(valor: string) {
   try {
     const url = new URL(valor);
-    const origem = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!);
+    const origem = new URL(supabaseUrl());
 
     return url.origin === origem.origin && url.pathname.startsWith(CAMINHO_PAGINAS);
   } catch {

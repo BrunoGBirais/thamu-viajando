@@ -32,7 +32,9 @@ PowerShell 5.1's default agent starts with `Mozilla/5.0`.
 SQL lives in `supabase/migrations/` and is applied by **GitHub Actions**, never by hand:
 a push to `dev` runs `supabase db push` against the development project, a merge to `main`
 runs it against production (`.github/workflows/supabase-{dev,prod}.yml`). The two projects are
-in **different Supabase accounts**, so each GitHub Environment (`dev`, `prod`) carries its own
+in **different Supabase accounts**, so each GitHub Environment (`Preview` for dev, `Production`
+for prod — named to match Vercel's scopes, and the `environment:` key in each workflow must
+match exactly) carries its own
 `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID` and `SUPABASE_DB_PASSWORD`. There is no
 repo-level token on purpose — one would let a job authenticate as the wrong account.
 
