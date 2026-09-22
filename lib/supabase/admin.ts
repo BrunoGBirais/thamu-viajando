@@ -1,4 +1,5 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { supabaseUrl } from "./env";
 
 // Cliente com a service_role key: ignora RLS e permite criar/remover usuários.
 // NUNCA importe este arquivo em um Client Component — a chave é um segredo.
@@ -10,7 +11,7 @@ export function createAdminClient() {
   }
 
   return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl(),
     serviceRoleKey,
     { auth: { persistSession: false, autoRefreshToken: false } }
   );
